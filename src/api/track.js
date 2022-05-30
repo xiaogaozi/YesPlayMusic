@@ -1,3 +1,4 @@
+import pangu from 'pangu';
 import store from '@/store';
 import request from '@/utils/request';
 import { mapTrackPlayableStatus } from '@/utils/common';
@@ -48,6 +49,20 @@ export function getTrackDetail(ids) {
         ids,
       },
     }).then(data => {
+      // Add space automatically
+      data.songs = data.songs.map(song => {
+        song.name = pangu.spacing(song.name);
+        song.al.name = pangu.spacing(song.al.name);
+        song.ar = song.ar.map(artist => {
+          artist.name = pangu.spacing(artist.name);
+          return artist;
+        });
+        song.alia = song.alia.map(alia => {
+          return pangu.spacing(alia);
+        });
+        return song;
+      });
+
       data.songs.map(song => {
         const privileges = data.privileges.find(t => t.id === song.id);
         cacheTrackDetail(song, privileges);
@@ -85,6 +100,9 @@ export function getLyric(id) {
         id,
       },
     }).then(result => {
+      // Add space automatically
+      result.lrc.lyric = pangu.spacing(result.lrc.lyric);
+
       cacheLyric(id, result);
       return result;
     });

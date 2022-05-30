@@ -1,3 +1,4 @@
+import pangu from 'pangu';
 import request from '@/utils/request';
 import { mapTrackPlayableStatus } from '@/utils/common';
 
@@ -15,6 +16,21 @@ export function getArtist(id) {
       timestamp: new Date().getTime(),
     },
   }).then(data => {
+    // Add space automatically
+    data.artist.name = pangu.spacing(data.artist.name);
+    data.artist.briefDesc = pangu.spacing(data.artist.briefDesc);
+    data.hotSongs = data.hotSongs.map(song => {
+      song.name = pangu.spacing(song.name);
+      song.ar = song.ar.map(artist => {
+        artist.name = pangu.spacing(artist.name);
+        return artist;
+      });
+      song.alia = song.alia.map(alia => {
+        return pangu.spacing(alia);
+      });
+      return song;
+    });
+
     data.hotSongs = mapTrackPlayableStatus(data.hotSongs);
     return data;
   });
@@ -36,6 +52,13 @@ export function getArtistAlbum(params) {
     url: '/artist/album',
     method: 'get',
     params,
+  }).then(data => {
+    // Add space automatically
+    data.hotAlbums = data.hotAlbums.map(album => {
+      album.name = pangu.spacing(album.name);
+      return album;
+    });
+    return data;
   });
 }
 
@@ -72,6 +95,13 @@ export function artistMv(params) {
     url: '/artist/mv',
     method: 'get',
     params,
+  }).then(data => {
+    // Add space automatically
+    data.mvs = data.mvs.map(mv => {
+      mv.name = pangu.spacing(mv.name);
+      return mv;
+    });
+    return data;
   });
 }
 
@@ -103,5 +133,13 @@ export function similarArtists(id) {
     url: '/simi/artist',
     method: 'post',
     params: { id },
+  }).then(data => {
+    // Add space automatically
+    data.artists = data.artists.map(artist => {
+      artist.name = pangu.spacing(artist.name);
+      return artist;
+    });
+
+    return data;
   });
 }

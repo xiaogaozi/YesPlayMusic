@@ -353,7 +353,7 @@ export default {
         return;
       }
       this.currentTab = tab;
-      this.$parent.$refs.main.scrollTo({ top: 375, behavior: 'smooth' });
+      // this.$parent.$refs.main.scrollTo({ top: 375, behavior: 'smooth' });
     },
     goToLikedSongsList() {
       this.$router.push({ path: '/library/liked-songs' });
@@ -392,7 +392,7 @@ export default {
     },
     changePlaylistFilter(type) {
       this.updateData({ key: 'libraryPlaylistFilter', value: type });
-      window.scrollTo({ top: 375, behavior: 'smooth' });
+      // window.scrollTo({ top: 375, behavior: 'smooth' });
     },
     selectUploadFiles() {
       this.$refs.cloudDiskUploadInput.click();

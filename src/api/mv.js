@@ -1,3 +1,4 @@
+import pangu from 'pangu';
 import request from '@/utils/request';
 
 /**
@@ -15,6 +16,10 @@ export function mvDetail(mvid) {
       mvid,
       timestamp: new Date().getTime(),
     },
+  }).then(data => {
+    // Add space automatically
+    data.data.name = pangu.spacing(data.data.name);
+    return data;
   });
 }
 
@@ -46,6 +51,14 @@ export function simiMv(mvid) {
     url: '/simi/mv',
     method: 'get',
     params: { mvid },
+  }).then(data => {
+    // Add space automatically
+    data.mvs = data.mvs.map(mv => {
+      mv.name = pangu.spacing(mv.name);
+      mv.artistName = pangu.spacing(mv.artistName);
+      return mv;
+    });
+    return data;
   });
 }
 

@@ -1,3 +1,4 @@
+import pangu from 'pangu';
 import request from '@/utils/request';
 
 /**
@@ -118,6 +119,17 @@ export function likedAlbums(params) {
       limit: params.limit,
       timestamp: new Date().getTime(),
     },
+  }).then(data => {
+    // Add space automatically
+    data.data = data.data.map(album => {
+      album.name = pangu.spacing(album.name);
+      album.artists = album.artists.map(artist => {
+        artist.name = pangu.spacing(artist.name);
+        return artist;
+      });
+      return album;
+    });
+    return data;
   });
 }
 
@@ -133,6 +145,13 @@ export function likedArtists(params) {
       limit: params.limit,
       timestamp: new Date().getTime(),
     },
+  }).then(data => {
+    // Add space automatically
+    data.data = data.data.map(artist => {
+      artist.name = pangu.spacing(artist.name);
+      return artist;
+    });
+    return data;
   });
 }
 
@@ -148,6 +167,17 @@ export function likedMVs(params) {
       limit: params.limit,
       timestamp: new Date().getTime(),
     },
+  }).then(data => {
+    // Add space automatically
+    data.data = data.data.map(mv => {
+      mv.title = pangu.spacing(mv.title);
+      mv.creator = mv.creator.map(creator => {
+        creator.userName = pangu.spacing(creator.userName);
+        return creator;
+      });
+      return mv;
+    });
+    return data;
   });
 }
 

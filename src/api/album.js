@@ -1,3 +1,4 @@
+import pangu from 'pangu';
 import request from '@/utils/request';
 import { mapTrackPlayableStatus } from '@/utils/common';
 import { cacheAlbum, getAlbumFromCache } from '@/utils/db';
@@ -16,6 +17,11 @@ export function getAlbum(id) {
         id,
       },
     }).then(data => {
+      // Add space automatically
+      data.album.name = pangu.spacing(data.album.name);
+      data.album.description = pangu.spacing(data.album.description);
+      data.album.artist.name = pangu.spacing(data.album.artist.name);
+
       cacheAlbum(id, data);
       data.songs = mapTrackPlayableStatus(data.songs);
       return data;

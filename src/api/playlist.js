@@ -1,3 +1,4 @@
+import pangu from 'pangu';
 import request from '@/utils/request';
 import { mapTrackPlayableStatus } from '@/utils/common';
 
@@ -48,6 +49,20 @@ export function getPlaylistDetail(id, noCache = false) {
     params,
   }).then(data => {
     if (data.playlist) {
+      // Add space automatically
+      data.playlist.name = pangu.spacing(data.playlist.name);
+      data.playlist.description = pangu.spacing(data.playlist.description);
+      data.playlist.tracks = data.playlist.tracks.map(track => {
+        track.ar = track.ar.map(artist => {
+          artist.name = pangu.spacing(artist.name);
+          return artist;
+        });
+        track.alia = track.alia.map(alia => {
+          return pangu.spacing(alia);
+        });
+        return track;
+      });
+
       data.playlist.tracks = mapTrackPlayableStatus(
         data.playlist.tracks,
         data.privileges || []

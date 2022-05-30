@@ -1,3 +1,4 @@
+import pangu from 'pangu';
 import request from '@/utils/request';
 import { mapTrackPlayableStatus } from '@/utils/common';
 
@@ -22,6 +23,37 @@ export function search(params) {
     method: 'get',
     params,
   }).then(data => {
+    // Add space automatically
+    if (data.result?.artists !== undefined) {
+      data.result.artists = data.result.artists.map(artist => {
+        artist.name = pangu.spacing(artist.name);
+        return artist;
+      });
+    }
+    if (data.result?.albums !== undefined) {
+      data.result.albums = data.result.albums.map(album => {
+        album.artist.name = pangu.spacing(album.artist.name);
+        return album;
+      });
+    }
+    if (data.result?.mvs !== undefined) {
+      data.result.mvs = data.result.mvs.map(mv => {
+        mv.name = pangu.spacing(mv.name);
+        mv.artistName = pangu.spacing(mv.artistName);
+        mv.artists = mv.artists.map(artist => {
+          artist.name = pangu.spacing(artist.name);
+          return artist;
+        });
+        return mv;
+      });
+    }
+    if (data.result?.playlists !== undefined) {
+      data.result.playlists = data.result.playlists.map(playlist => {
+        playlist.name = pangu.spacing(playlist.name);
+        return playlist;
+      });
+    }
+
     if (data.result?.song !== undefined)
       data.result.song.songs = mapTrackPlayableStatus(data.result.song.songs);
     return data;

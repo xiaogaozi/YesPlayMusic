@@ -19,30 +19,30 @@ export function registerGlobalShortcut(win, store) {
       win.webContents.send('play');
     }
   );
-  globalShortcut.register(
-    shortcuts.find(s => s.id === 'next').globalShortcut,
-    () => {
-      win.webContents.send('next');
-    }
-  );
-  globalShortcut.register(
-    shortcuts.find(s => s.id === 'previous').globalShortcut,
-    () => {
-      win.webContents.send('previous');
-    }
-  );
-  globalShortcut.register(
-    shortcuts.find(s => s.id === 'increaseVolume').globalShortcut,
-    () => {
-      win.webContents.send('increaseVolume');
-    }
-  );
-  globalShortcut.register(
-    shortcuts.find(s => s.id === 'decreaseVolume').globalShortcut,
-    () => {
-      win.webContents.send('decreaseVolume');
-    }
-  );
+  // globalShortcut.register(
+  //   shortcuts.find(s => s.id === 'next').globalShortcut,
+  //   () => {
+  //     win.webContents.send('next');
+  //   }
+  // );
+  // globalShortcut.register(
+  //   shortcuts.find(s => s.id === 'previous').globalShortcut,
+  //   () => {
+  //     win.webContents.send('previous');
+  //   }
+  // );
+  // globalShortcut.register(
+  //   shortcuts.find(s => s.id === 'increaseVolume').globalShortcut,
+  //   () => {
+  //     win.webContents.send('increaseVolume');
+  //   }
+  // );
+  // globalShortcut.register(
+  //   shortcuts.find(s => s.id === 'decreaseVolume').globalShortcut,
+  //   () => {
+  //     win.webContents.send('decreaseVolume');
+  //   }
+  // );
   globalShortcut.register(
     shortcuts.find(s => s.id === 'like').globalShortcut,
     () => {
