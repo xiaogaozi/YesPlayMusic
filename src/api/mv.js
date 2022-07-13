@@ -19,6 +19,8 @@ export function mvDetail(mvid) {
   }).then(data => {
     // Add space automatically
     data.data.name = pangu.spacing(data.data.name);
+    data.data.artistName = pangu.spacing(data.data.artistName);
+
     return data;
   });
 }
