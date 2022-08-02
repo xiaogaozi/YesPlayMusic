@@ -102,6 +102,8 @@ export function getLyric(id) {
     }).then(result => {
       // Add space automatically
       result.lrc.lyric = pangu.spacing(result.lrc.lyric);
+      result.tlyric.lyric = pangu.spacing(result.tlyric.lyric);
+      result.klyric.lyric = pangu.spacing(result.klyric.lyric);
 
       cacheLyric(id, result);
       return result;
