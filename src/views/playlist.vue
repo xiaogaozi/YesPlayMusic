@@ -211,6 +211,12 @@
         @click="deletePlaylist"
         >删除歌单</div
       >
+      <div class="item" @click="copyUrl(playlist.id)">{{
+        $t('contextMenu.copyUrl')
+      }}</div>
+      <div class="item" @click="openInBrowser(playlist.id)">{{
+        $t('contextMenu.openInBrowser')
+      }}</div>
     </ContextMenu>
   </div>
 </template>
@@ -533,6 +539,20 @@ export default {
       } else {
         this.$store.commit('enableScrolling', true);
       }
+    },
+    copyUrl(id) {
+      let showToast = this.showToast;
+      this.$copyText(`https://music.163.com/#/playlist?id=${id}`)
+        .then(function () {
+          showToast(locale.t('toast.copied'));
+        })
+        .catch(error => {
+          showToast(`${locale.t('toast.copyFailed')}${error}`);
+        });
+    },
+    openInBrowser(id) {
+      const url = `https://music.163.com/#/playlist?id=${id}`;
+      window.open(url);
     },
   },
 };

@@ -48,6 +48,14 @@ export function userPlaylist(params) {
     url: '/user/playlist',
     method: 'get',
     params,
+  }).then(data => {
+    // Add space automatically
+    data.playlist = data.playlist.map(playlist => {
+      playlist.name = pangu.spacing(playlist.name);
+      playlist.description = pangu.spacing(playlist.description);
+      return playlist;
+    });
+    return data;
   });
 }
 
