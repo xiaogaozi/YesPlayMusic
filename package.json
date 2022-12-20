@@ -11,6 +11,7 @@
     "electron:build": "vue-cli-service electron:build -p never",
     "electron:build-all": "vue-cli-service electron:build -p never -mwl",
     "electron:build-mac": "vue-cli-service electron:build -p never -m",
+    "electron:build-mac-dmg": "ELECTRON_MIRROR='https://npmmirror.com/mirrors/electron' vue-cli-service electron:build -p never -m dmg:x64",
     "electron:build-win": "vue-cli-service electron:build -p never -w",
     "electron:build-linux": "vue-cli-service electron:build -p never -l",
     "electron:serve": "vue-cli-service electron:serve",
@@ -24,7 +25,7 @@
   "main": "background.js",
   "dependencies": {
     "@unblockneteasemusic/rust-napi": "^0.3.0-pre.1",
-    "NeteaseCloudMusicApi": "^4.5.2",
+    "NeteaseCloudMusicApi": "^4.8.4",
     "axios": "^0.26.1",
     "change-case": "^4.1.2",
     "cli-color": "^2.0.0",
