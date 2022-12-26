@@ -25,6 +25,7 @@ export default {
     albums: '专辑',
     artists: '艺人',
     mvs: 'MV',
+    podcasts: '播客',
     cloudDisk: '云盘',
     newPlayList: '新建歌单',
     uploadSongs: '上传歌曲',
@@ -231,5 +232,9 @@ export default {
     copied: '已复制',
     copyFailed: '复制失败：',
     needToLogin: '此操作需要登录网易云帐号',
+  },
+  podcast: {
+    episodes: '期',
+    podcastDesc: '播客介绍',
   },
 };

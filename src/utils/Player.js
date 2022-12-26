@@ -1,16 +1,18 @@
-import { getAlbum } from '@/api/album';
-import { getArtist } from '@/api/artist';
-import { trackScrobble, trackUpdateNowPlaying } from '@/api/lastfm';
-import { fmTrash, personalFM } from '@/api/others';
-import { getPlaylistDetail, intelligencePlaylist } from '@/api/playlist';
-import { getMP3, getTrackDetail, scrobble } from '@/api/track';
-import store from '@/store';
-import { isAccountLoggedIn } from '@/utils/auth';
-import { cacheTrackSource, getTrackSource } from '@/utils/db';
-import { isCreateMpris, isCreateTray } from '@/utils/platform';
 import { Howl, Howler } from 'howler';
 import shuffle from 'lodash/shuffle';
+
 import { decode as base642Buffer } from '@/utils/base64';
+import { cacheTrackSource, getTrackSource } from '@/utils/db';
+import { fmTrash, personalFM } from '@/api/others';
+import { getAlbum } from '@/api/album';
+import { getArtist } from '@/api/artist';
+import { getDjProgramDetail } from '@/api/dj';
+import { getMP3, getTrackDetail, scrobble } from '@/api/track';
+import { getPlaylistDetail, intelligencePlaylist } from '@/api/playlist';
+import { isAccountLoggedIn } from '@/utils/auth';
+import { isCreateMpris, isCreateTray } from '@/utils/platform';
+import { trackScrobble, trackUpdateNowPlaying } from '@/api/lastfm';
+import store from '@/store';
 
 const PLAY_PAUSE_FADE_DURATION = 200;
 
@@ -406,7 +408,8 @@ export default class {
       'unblock-music',
       store.state.settings.unmSource,
       track,
-      /** @type {import("@unblockneteasemusic/rust-napi").Context} */ ({
+      /** @type {import("@unblockneteasemusic/rust-napi").Context} */
+      ({
         enableFlac: store.state.settings.unmEnableFlac || null,
         proxyUri: store.state.settings.unmProxyUri || null,
         searchMode: determineSearchMode(store.state.settings.unmSearchMode),
@@ -457,29 +460,56 @@ export default class {
     if (autoplay && this._currentTrack.name) {
       this._scrobble(this.currentTrack, this._howler?.seek());
     }
-    return getTrackDetail(id).then(data => {
-      let track = data.songs[0];
-      this._currentTrack = track;
-      this._updateMediaSessionMetaData(track);
-      return this._getAudioSource(track).then(source => {
-        if (source) {
-          this._playAudioSource(source, autoplay);
-          this._cacheNextTrack();
-          return source;
-        } else {
-          store.dispatch('showToast', `无法播放 ${track.name}`);
-          if (ifUnplayableThen === 'playNextTrack') {
-            if (this.isPersonalFM) {
-              this.playNextFMTrack();
-            } else {
-              this.playNextTrack();
-            }
+    if (this._playlistSource.type === 'dj') {
+      let programId = this._playlistSource.id[id] || id;
+      return getDjProgramDetail(programId).then(data => {
+        data = data.program;
+        let track = {
+          al: { ...data.radio, picUrl: data.coverUrl },
+          ar: data.mainSong.artists,
+          dt: data.mainSong.duration,
+          ...data.mainSong,
+        };
+        this._currentTrack = track;
+        this._updateMediaSessionMetaData(track);
+        return this._getAudioSource(track).then(source => {
+          if (source) {
+            this._playAudioSource(source, autoplay);
+            this._cacheNextTrack();
+            return source;
           } else {
-            this.playPrevTrack();
+            store.dispatch('showToast', `无法播放 ${track.name}`);
+            ifUnplayableThen === 'playNextTrack'
+              ? this.playNextTrack()
+              : this.playPrevTrack();
           }
-        }
+        });
       });
-    });
+    } else {
+      return getTrackDetail(id).then(data => {
+        let track = data.songs[0];
+        this._currentTrack = track;
+        this._updateMediaSessionMetaData(track);
+        return this._getAudioSource(track).then(source => {
+          if (source) {
+            this._playAudioSource(source, autoplay);
+            this._cacheNextTrack();
+            return source;
+          } else {
+            store.dispatch('showToast', `无法播放 ${track.name}`);
+            if (ifUnplayableThen === 'playNextTrack') {
+              if (this.isPersonalFM) {
+                this.playNextFMTrack();
+              } else {
+                this.playNextTrack();
+              }
+            } else {
+              this.playPrevTrack();
+            }
+          }
+        });
+      });
+    }
   }
   _cacheNextTrack() {
     let nextTrackID = this._isPersonalFM
@@ -487,10 +517,18 @@ export default class {
       : this._getNextTrack()[0];
     if (!nextTrackID) return;
     if (this._personalFMTrack.id == nextTrackID) return;
-    getTrackDetail(nextTrackID).then(data => {
-      let track = data.songs[0];
-      this._getAudioSource(track);
-    });
+    if (this._playlistSource.type === 'dj') {
+      let programId = this._playlistSource.id[nextTrackID] || nextTrackID;
+      getDjProgramDetail(programId).then(data => {
+        let track = data.program.mainSong;
+        this._getAudioSource(track);
+      });
+    } else {
+      getTrackDetail(nextTrackID).then(data => {
+        let track = data.songs[0];
+        this._getAudioSource(track);
+      });
+    }
   }
   _loadSelfFromLocalStorage() {
     const player = JSON.parse(localStorage.getItem('player'));

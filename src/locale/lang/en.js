@@ -28,6 +28,7 @@ export default {
     albums: 'Albums',
     artists: 'Artists',
     mvs: 'MVs',
+    podcasts: 'Podcasts',
     cloudDisk: 'Cloud Disk',
     newPlayList: 'New Playlist',
     uploadSongs: 'Upload Songs',
@@ -231,5 +232,9 @@ export default {
     copied: 'Copied',
     copyFailed: 'Copy failed: ',
     needToLogin: 'Need to log into netease account',
+  },
+  podcast: {
+    episodes: 'Episodes',
+    podcastDesc: 'Podcast Description',
   },
 };

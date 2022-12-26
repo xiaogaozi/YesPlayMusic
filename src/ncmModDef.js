@@ -614,4 +614,24 @@ module.exports = [
     route: '/activate/init/profile',
     module: require('NeteaseCloudMusicApi/module/activate_init_profile'),
   },
+  {
+    identifier: 'dj_sublist',
+    route: '/dj/sublist',
+    module: require('NeteaseCloudMusicApi/module/dj_sublist'),
+  },
+  {
+    identifier: 'dj_detail',
+    route: '/dj/detail',
+    module: require('NeteaseCloudMusicApi/module/dj_detail'),
+  },
+  {
+    identifier: 'dj_program_detail',
+    route: '/dj/program/detail',
+    module: require('NeteaseCloudMusicApi/module/dj_program_detail'),
+  },
+  {
+    identifier: 'dj_program',
+    route: '/dj/program',
+    module: require('NeteaseCloudMusicApi/module/dj_program'),
+  },
 ];

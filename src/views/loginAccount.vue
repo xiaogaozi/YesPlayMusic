@@ -137,7 +137,7 @@ export default {
       qrCodeKey: '',
       qrCodeSvg: '',
       qrCodeCheckInterval: null,
-      qrCodeInformation: '打开网易云音乐APP扫码登录',
+      qrCodeInformation: '打开网易云音乐 App 扫码登录',
     };
   },
   computed: {
@@ -270,7 +270,7 @@ export default {
           } else if (result.code === 802) {
             this.qrCodeInformation = '扫描成功，请在手机上确认登录';
           } else if (result.code === 801) {
-            this.qrCodeInformation = '打开网易云音乐APP扫码登录';
+            this.qrCodeInformation = '打开网易云音乐 App 扫码登录';
           } else if (result.code === 803) {
             clearInterval(this.qrCodeCheckInterval);
             this.qrCodeInformation = '登录成功，请稍等...';

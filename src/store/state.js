@@ -22,6 +22,7 @@ export default {
     artists: [],
     mvs: [],
     cloudDisk: [],
+    djs: [],
   },
   contextMenu: {
     clickObjectID: 0,

@@ -82,6 +82,13 @@
           </div>
           <div
             class="tab"
+            :class="{ active: currentTab === 'djs' }"
+            @click="updateCurrentTab('djs')"
+          >
+            {{ $t('library.podcasts') }}
+          </div>
+          <div
+            class="tab"
             :class="{ active: currentTab === 'cloudDisk' }"
             @click="updateCurrentTab('cloudDisk')"
           >
@@ -139,6 +146,10 @@
 
       <div v-show="currentTab === 'mvs'">
         <MvRow :mvs="liked.mvs" />
+      </div>
+
+      <div v-show="currentTab === 'djs'">
+        <CoverRow :items="liked.djs" type="dj" :show-play-button="true" />
       </div>
 
       <div v-show="currentTab === 'cloudDisk'">
@@ -331,6 +342,7 @@ export default {
       this.$store.dispatch('fetchLikedArtists');
       this.$store.dispatch('fetchLikedMVs');
       this.$store.dispatch('fetchCloudDisk');
+      this.$store.dispatch('fetchLikedDJs');
       this.$store.dispatch('fetchPlayHistory');
     },
     playLikedSongs() {
