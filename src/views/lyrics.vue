@@ -58,14 +58,18 @@
                 <div class="subtitle">
                   <router-link
                     v-if="artist.id !== 0"
-                    :to="`/artist/${artist.id}`"
+                    :to="`${
+                      player.playlistSource.type !== 'dj' ? '/artist/' : '/dj/'
+                    }${artist.id}`"
                     @click.native="toggleLyrics"
                     >{{ artist.name }}
                   </router-link>
                   <span v-else>
                     {{ artist.name }}
                   </span>
-                  <span v-if="album.id !== 0">
+                  <span
+                    v-if="album.id !== 0 && player.playlistSource.type !== 'dj'"
+                  >
                     -
                     <router-link
                       :to="`/album/${album.id}`"
@@ -76,7 +80,7 @@
                   </span>
                 </div>
               </div>
-              <div class="buttons">
+              <div v-if="player.playlistSource.type !== 'dj'" class="buttons">
                 <button-icon
                   :title="$t('player.like')"
                   @click.native="likeATrack(player.currentTrack.id)"

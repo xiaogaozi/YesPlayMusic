@@ -477,7 +477,10 @@ export default class {
         data = data.program;
         let track = {
           al: { ...data.radio, picUrl: data.coverUrl },
-          ar: data.mainSong.artists,
+          ar: data.mainSong.artists.map(ar => {
+            ar.id = data.radio.id;
+            return ar;
+          }),
           dt: data.mainSong.duration,
           ...data.mainSong,
         };

@@ -63,6 +63,9 @@ export function getDjProgramDetail(id) {
     },
   }).then(data => {
     // Add space automatically
+    data.program.name = pangu.spacing(data.program.name);
+    data.program.description = pangu.spacing(data.program.description);
+    data.program.radio.name = pangu.spacing(data.program.radio.name);
     data.program.mainSong.name = pangu.spacing(data.program.mainSong.name);
 
     return data;

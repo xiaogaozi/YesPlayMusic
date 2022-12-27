@@ -7,7 +7,7 @@
     @click="clickCoverToPlay ? play() : goTo()"
   >
     <div class="cover-container">
-      <div class="shade">
+      <div v-if="showPlayButton" class="shade">
         <button
           v-show="focus"
           class="play-button"
@@ -42,6 +42,7 @@ export default {
     clickCoverToPlay: { type: Boolean, default: false },
     shadowMargin: { type: Number, default: 12 },
     radius: { type: Number, default: 12 },
+    showPlayButton: { type: Boolean, default: true },
   },
   data() {
     return {

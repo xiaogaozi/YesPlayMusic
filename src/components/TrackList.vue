@@ -10,7 +10,7 @@
       </div>
       <hr v-show="type !== 'cloudDisk'" />
       <div class="item" @click="play">{{ $t('contextMenu.play') }}</div>
-      <div class="item" @click="addToQueue">{{
+      <div v-show="type !== 'dj'" class="item" @click="addToQueue">{{
         $t('contextMenu.addToQueue')
       }}</div>
       <div
@@ -30,7 +30,9 @@
         {{ $t('contextMenu.saveToMyLikedSongs') }}
       </div>
       <div
-        v-show="isRightClickedTrackLiked && type !== 'cloudDisk'"
+        v-show="
+          isRightClickedTrackLiked && type !== 'cloudDisk' && type !== 'dj'
+        "
         class="item"
         @click="like"
       >
@@ -48,9 +50,13 @@
         @click="addTrackToPlaylist"
         >{{ $t('contextMenu.addToPlaylist') }}</div
       >
-      <div v-show="type !== 'cloudDisk'" class="item" @click="copyLink">{{
-        $t('contextMenu.copyUrl')
-      }}</div>
+      <div
+        v-show="type !== 'cloudDisk' && type !== 'dj'"
+        class="item"
+        @click="copyLink"
+      >
+        {{ $t('contextMenu.copyUrl') }}
+      </div>
       <div
         v-if="extraContextMenuItem.includes('removeTrackFromCloudDisk')"
         class="item"

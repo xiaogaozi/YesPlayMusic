@@ -16,6 +16,10 @@ export function getListSourcePath() {
     return state.player.playlistSource.id;
   } else if (state.player.playlistSource.type === 'cloudDisk') {
     return '/library';
+  } else if (state.player.playlistSource.type === 'dj') {
+    const djProgramId =
+      state.player.playlistSource.id[state.player.currentTrack.id];
+    return `/dj/program/${djProgramId}`;
   } else {
     return `/${state.player.playlistSource.type}/${state.player.playlistSource.id}`;
   }

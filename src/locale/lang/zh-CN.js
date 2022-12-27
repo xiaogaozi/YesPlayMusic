@@ -236,5 +236,6 @@ export default {
   podcast: {
     episodes: '期',
     podcastDesc: '播客介绍',
+    episodeDesc: '本期介绍',
   },
 };

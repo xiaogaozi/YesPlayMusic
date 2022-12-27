@@ -149,7 +149,7 @@
       </div>
 
       <div v-show="currentTab === 'djs'">
-        <CoverRow :items="liked.djs" type="dj" :show-play-button="true" />
+        <CoverRow :items="liked.djs" type="dj" :show-play-button="false" />
       </div>
 
       <div v-show="currentTab === 'cloudDisk'">

@@ -27,7 +27,7 @@
         <div class="container" @click.stop>
           <img
             :src="currentTrack.al && currentTrack.al.picUrl | resizeImage(224)"
-            @click="goToAlbum"
+            @click="hasList() && goToList()"
           />
           <div class="track-info" :title="audioSource">
             <div
@@ -47,7 +47,7 @@
               </span>
             </div>
           </div>
-          <div class="like-button">
+          <div v-if="player.playlistSource.type !== 'dj'" class="like-button">
             <button-icon
               :title="$t('player.like')"
               @click.native="likeATrack(player.currentTrack.id)"
@@ -263,7 +263,14 @@ export default {
       this.$router.push({ path: '/album/' + this.player.currentTrack.al.id });
     },
     goToArtist(id) {
-      this.$router.push({ path: '/artist/' + id });
+      switch (this.player.playlistSource.type) {
+        case 'dj':
+          this.$router.push({ path: '/dj/' + id });
+          break;
+        default:
+          this.$router.push({ path: '/artist/' + id });
+          break;
+      }
     },
     moveToFMTrash() {
       this.player.moveToFMTrash();

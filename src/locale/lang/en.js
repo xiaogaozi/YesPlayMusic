@@ -236,5 +236,6 @@ export default {
   podcast: {
     episodes: 'Episodes',
     podcastDesc: 'Podcast Description',
+    episodeDesc: 'Episode Description',
   },
 };
