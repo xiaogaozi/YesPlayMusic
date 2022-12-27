@@ -1,5 +1,5 @@
 <template>
-  <div class="player" @click="toggleLyrics">
+  <div class="player">
     <div
       class="progress-bar"
       :class="{
@@ -96,6 +96,9 @@
       <div class="right-control-buttons">
         <div class="blank"></div>
         <div class="container" @click.stop>
+          <button-icon :class="'rate'" @click.native="openRateMenu">
+            {{ player.rate }}x
+          </button-icon>
           <button-icon
             :title="$t('player.nextUp')"
             :class="{
@@ -172,6 +175,14 @@
         </div>
       </div>
     </div>
+
+    <ContextMenu ref="rateMenu" :align="'top'">
+      <div class="item" @click="setRate(0.5)">0.5x</div>
+      <div class="item" @click="setRate(1.0)">1x</div>
+      <div class="item" @click="setRate(1.5)">1.5x</div>
+      <div class="item" @click="setRate(1.75)">1.75x</div>
+      <div class="item" @click="setRate(2.0)">2x</div>
+    </ContextMenu>
   </div>
 </template>
 
@@ -180,6 +191,7 @@ import { mapState, mapMutations, mapActions } from 'vuex';
 import '@/assets/css/slider.css';
 
 import ButtonIcon from '@/components/ButtonIcon.vue';
+import ContextMenu from '@/components/ContextMenu.vue';
 import VueSlider from 'vue-slider-component';
 import { goToListSource, hasListSource } from '@/utils/playList';
 
@@ -187,6 +199,7 @@ export default {
   name: 'Player',
   components: {
     ButtonIcon,
+    ContextMenu,
     VueSlider,
   },
   computed: {
@@ -266,6 +279,12 @@ export default {
     },
     mute() {
       this.player.mute();
+    },
+    openRateMenu(e) {
+      this.$refs.rateMenu.openMenu(e);
+    },
+    setRate(rate) {
+      this.player.rate = rate;
     },
   },
 };
@@ -424,6 +443,10 @@ export default {
     .volume-bar {
       width: 84px;
     }
+  }
+  .rate {
+    color: var(--color-text);
+    font-size: 16px;
   }
 }
 

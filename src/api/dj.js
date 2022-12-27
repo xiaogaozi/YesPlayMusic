@@ -61,5 +61,10 @@ export function getDjProgramDetail(id) {
     params: {
       id,
     },
+  }).then(data => {
+    // Add space automatically
+    data.program.mainSong.name = pangu.spacing(data.program.mainSong.name);
+
+    return data;
   });
 }

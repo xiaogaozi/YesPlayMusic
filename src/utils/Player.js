@@ -57,6 +57,7 @@ export default class {
     this._repeatMode = 'off'; // off | on | one
     this._shuffle = false; // true | false
     this._reversed = false;
+    this._rate = 1.0; // 0.5 to 4.0
     this._volume = 1; // 0 to 1
     this._volumeBeforeMuted = 1; // 用于保存静音前的音量
     this._personalFMLoading = false; // 是否正在私人FM中加载新的track
@@ -133,6 +134,15 @@ export default class {
     }
     console.log('changing reversed to:', reversed);
     this._reversed = reversed;
+  }
+  get rate() {
+    return this._rate;
+  }
+  set rate(rate) {
+    this._rate = rate;
+    if (this._howler) {
+      this._howler.rate(rate);
+    }
   }
   get volume() {
     return this._volume;
@@ -318,6 +328,7 @@ export default class {
       src: [source],
       html5: true,
       preload: true,
+      rate: this.rate,
       format: ['mp3', 'flac'],
       onend: () => {
         this._nextTrackCallback();

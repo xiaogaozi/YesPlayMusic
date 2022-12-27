@@ -230,5 +230,5 @@ export function formatTrackTime(value) {
 
 export function formatTimestamp(ts) {
   const d = new Date(ts);
-  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 }

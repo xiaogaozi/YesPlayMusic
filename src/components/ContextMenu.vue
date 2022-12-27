@@ -19,6 +19,9 @@ import { mapState } from 'vuex';
 
 export default {
   name: 'ContextMenu',
+  props: {
+    align: { type: String, default: 'pointer' },
+  },
   data() {
     return {
       showMenu: false,
@@ -30,13 +33,29 @@ export default {
     ...mapState(['player']),
   },
   methods: {
-    setMenu(top, left) {
+    setMenu(e) {
       let heightOffset = this.player.enabled ? 64 : 0;
       let largestHeight =
         window.innerHeight - this.$refs.menu.offsetHeight - heightOffset;
       let largestWidth = window.innerWidth - this.$refs.menu.offsetWidth - 25;
+
+      let top;
+      let left;
+      switch (this.align) {
+        case 'top':
+          top = e.target.offsetTop - this.$refs.menu.offsetHeight;
+          left = e.target.offsetLeft;
+          break;
+        case 'pointer':
+        default:
+          top = e.y;
+          left = e.x;
+          break;
+      }
+
       if (top > largestHeight) top = largestHeight;
       if (left > largestWidth) left = largestWidth;
+
       this.top = top + 'px';
       this.left = left + 'px';
     },
@@ -54,7 +73,7 @@ export default {
       this.$nextTick(
         function () {
           this.$refs.menu.focus();
-          this.setMenu(e.y, e.x);
+          this.setMenu(e);
         }.bind(this)
       );
       e.preventDefault();
@@ -67,7 +86,7 @@ export default {
 <style lang="scss" scoped>
 .context-menu {
   width: 100%;
-  height: 100%;
+  /* height: 100%; */
   user-select: none;
 }
 
