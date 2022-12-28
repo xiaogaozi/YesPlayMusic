@@ -31,9 +31,11 @@
     <div class="title-and-artist">
       <div class="container">
         <div class="title">
-          <router-link v-if="type === 'dj'" :to="`/dj/program/${track.id}`">{{
-            track.name
-          }}</router-link>
+          <router-link
+            v-if="type === 'dj'"
+            :to="`/dj/program/${trackProp.id}`"
+            >{{ track.name }}</router-link
+          >
           <span v-else>{{ track.name }}</span>
           <span v-if="isAlbum" class="featured">
             <ArtistsInLine
@@ -114,9 +116,7 @@ export default {
       if (this.type === 'cloudDisk') {
         return this.trackProp.simpleSong;
       } else if (this.type === 'dj') {
-        let t = this.trackProp.mainSong;
-        t.id = this.trackProp.id; // Replace with real DJ program ID (not equal to mainSong.id)
-        return t;
+        return this.trackProp.mainSong;
       } else {
         return this.trackProp;
       }

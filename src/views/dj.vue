@@ -104,7 +104,6 @@ export default {
     TrackList,
   },
   beforeRouteUpdate(to, from, next) {
-    this.show = false;
     this.loadData(to.params.id);
     next();
   },
@@ -125,15 +124,18 @@ export default {
       hasMore: true,
       loadingMore: true,
       showFullDescription: false,
-      dynamicDetail: {},
       createTime: 0,
     };
   },
   computed: {
     ...mapState(['player']),
   },
-  created() {
-    this.loadData(this.$route.params.id);
+  activated() {
+    if (this.rid?.toString() !== this.$route.params.id) {
+      this.loadData(this.$route.params.id);
+    } else {
+      this.$parent.$refs.scrollbar.restorePosition();
+    }
   },
   methods: {
     ...mapActions(['showToast']),
@@ -146,6 +148,7 @@ export default {
       this.player.replacePlaylist(trackIDs, programMap, 'dj');
     },
     loadData(rid) {
+      this.show = false;
       setTimeout(() => {
         if (!this.show) NProgress.start();
       }, 1000);
@@ -158,10 +161,14 @@ export default {
         this.dj = data.dj;
         this.picUrl = data.picUrl;
         this.createTime = data.createTime;
+
+        // Reset programs
+        this.programs = [];
+        this.programCount = 0;
+        this.loadMore();
+
         NProgress.done();
         this.show = true;
-
-        this.loadMore(rid);
       });
     },
     loadMore() {

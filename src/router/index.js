@@ -65,6 +65,10 @@ const routes = [
     path: '/dj/:id',
     name: 'dj',
     component: () => import('@/views/dj.vue'),
+    meta: {
+      keepAlive: true,
+      savePosition: true,
+    },
   },
   {
     path: '/dj/program/:id',

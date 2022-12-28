@@ -350,7 +350,8 @@ export default {
       }
     },
     getLyric() {
-      if (!this.currentTrack.id) return;
+      if (!this.currentTrack.id || this.player.playlistSource.type === 'dj')
+        return;
       return getLyric(this.currentTrack.id).then(data => {
         if (!data?.lrc?.lyric) {
           this.lyric = [];
