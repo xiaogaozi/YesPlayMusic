@@ -1,6 +1,7 @@
 import pangu from 'pangu';
-import request from '@/utils/request';
+
 import { mapTrackPlayableStatus } from '@/utils/common';
+import request from '@/utils/request';
 
 /**
  * 搜索
@@ -51,6 +52,12 @@ export function search(params) {
       data.result.playlists = data.result.playlists.map(playlist => {
         playlist.name = pangu.spacing(playlist.name);
         return playlist;
+      });
+    }
+    if (data.result?.djRadios !== undefined) {
+      data.result.djRadios = data.result.djRadios.map(djRadio => {
+        djRadio.name = pangu.spacing(djRadio.name);
+        return djRadio;
       });
     }
 

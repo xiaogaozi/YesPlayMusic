@@ -1,4 +1,5 @@
 import pangu from 'pangu';
+
 import request from '@/utils/request';
 
 /**
@@ -201,6 +202,14 @@ export function likedDJs(params) {
       limit: params.limit,
       timestamp: new Date().getTime(),
     },
+  }).then(data => {
+    // Add space automatically
+    data.djRadios = data.djRadios.map(djRadio => {
+      djRadio.name = pangu.spacing(djRadio.name);
+      return djRadio;
+    });
+
+    return data;
   });
 }
 

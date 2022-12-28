@@ -73,6 +73,24 @@
       />
     </div>
 
+    <div v-show="podcasts.length > 0" class="playlists">
+      <div class="section-title"
+        >{{ $t('search.podcast')
+        }}<router-link :to="`/search/${keywords}/podcasts`">{{
+          $t('home.seeMore')
+        }}</router-link></div
+      >
+      <CoverRow
+        type="dj"
+        :items="podcasts.slice(0, 12)"
+        sub-text="title"
+        :column-number="6"
+        sub-text-font-size="14px"
+        gap="34px 24px"
+        :play-button-size="26"
+      />
+    </div>
+
     <div v-show="!haveResult" class="no-results">
       <div
         ><svg-icon icon-class="search" />
@@ -109,6 +127,7 @@ export default {
       albums: [],
       playlists: [],
       musicVideos: [],
+      podcasts: [],
     };
   },
   computed: {
@@ -121,7 +140,8 @@ export default {
           this.artists.length +
           this.albums.length +
           this.playlists.length +
-          this.musicVideos.length >
+          this.musicVideos.length +
+          this.podcasts.length >
         0
       );
     },
@@ -150,6 +170,7 @@ export default {
         albums: 10,
         artists: 100,
         playlists: 1000,
+        podcasts: 1009,
       };
       return search({
         keywords: this.keywords,
@@ -197,6 +218,9 @@ export default {
               case 'playlists':
                 this.playlists = result.playlists ?? [];
                 break;
+              case 'podcasts':
+                this.podcasts = result.djRadios ?? [];
+                break;
             }
           });
           NProgress.done();
@@ -209,7 +233,11 @@ export default {
         this.search('albums'),
         this.search('tracks'),
       ];
-      const requests2 = [this.search('musicVideos'), this.search('playlists')];
+      const requests2 = [
+        this.search('musicVideos'),
+        this.search('playlists'),
+        this.search('podcasts'),
+      ];
 
       requestAll(requests);
       requestAll(requests2);

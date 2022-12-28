@@ -123,6 +123,7 @@ export default {
     song: 'Songs',
     mv: 'Music Videos',
     playlist: 'Playlists',
+    podcast: 'Podcasts',
     noResult: 'No Results',
     searchFor: 'Search for',
   },

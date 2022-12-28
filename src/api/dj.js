@@ -14,6 +14,13 @@ export function getDjDetail(rid) {
     params: {
       rid,
     },
+  }).then(data => {
+    // Add space automatically
+    data.data.name = pangu.spacing(data.data.name);
+    data.data.rcmdText = pangu.spacing(data.data.rcmdText);
+    data.data.desc = pangu.spacing(data.data.desc);
+
+    return data;
   });
 }
 

@@ -124,6 +124,7 @@ export default {
     song: '歌曲',
     mv: '视频',
     playlist: '歌单',
+    podcast: '播客',
     noResult: '暂无结果',
     searchFor: '搜索',
   },
