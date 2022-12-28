@@ -71,3 +71,20 @@ export function getDjProgramDetail(id) {
     return data;
   });
 }
+
+/**
+ * 订阅电台
+ * 说明：调用此接口，传入电台 ID，可订阅电台
+ * - rid：电台 ID
+ * - t：操作，1 为订阅，0 为取消订阅
+ * @param {Object} params
+ * @param {number} params.rid
+ * @param {number} params.t
+ */
+export function subscribeDj(params) {
+  return request({
+    url: '/dj/sub',
+    method: 'post',
+    params,
+  });
+}

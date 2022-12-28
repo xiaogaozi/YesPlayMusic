@@ -237,5 +237,7 @@ export default {
     episodes: '期',
     podcastDesc: '播客介绍',
     episodeDesc: '本期介绍',
+    subscribe: '订阅',
+    unsubscribe: '取消订阅',
   },
 };

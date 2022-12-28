@@ -634,4 +634,9 @@ module.exports = [
     route: '/dj/program',
     module: require('NeteaseCloudMusicApi/module/dj_program'),
   },
+  {
+    identifier: 'dj_sub',
+    route: '/dj/sub',
+    module: require('NeteaseCloudMusicApi/module/dj_sub'),
+  },
 ];

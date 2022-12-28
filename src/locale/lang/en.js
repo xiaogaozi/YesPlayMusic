@@ -237,5 +237,7 @@ export default {
     episodes: 'Episodes',
     podcastDesc: 'Podcast Description',
     episodeDesc: 'Episode Description',
+    subscribe: 'Subscribe',
+    unsubscribe: 'Unsubscribe',
   },
 };

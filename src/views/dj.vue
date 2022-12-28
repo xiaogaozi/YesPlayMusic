@@ -29,6 +29,10 @@
           <ButtonTwoTone icon-class="play" @click.native="playThisDj">
             {{ $t('common.play') }}
           </ButtonTwoTone>
+          <ButtonTwoTone color="grey" @click.native="toggleSubscribeDj">
+            <span v-if="subscribed">{{ $t('podcast.unsubscribe') }}</span>
+            <span v-else>{{ $t('podcast.subscribe') }}</span>
+          </ButtonTwoTone>
           <ButtonTwoTone
             icon-class="more"
             :icon-button="true"
@@ -86,7 +90,8 @@ import { mapActions, mapState } from 'vuex';
 import NProgress from 'nprogress';
 
 import { formatTimestamp } from '@/utils/common';
-import { getDjDetail, getDjPrograms } from '@/api/dj';
+import { getDjDetail, getDjPrograms, subscribeDj } from '@/api/dj';
+import { isAccountLoggedIn } from '@/utils/auth';
 import ButtonTwoTone from '@/components/ButtonTwoTone';
 import ContextMenu from '@/components/ContextMenu.vue';
 import Cover from '@/components/Cover';
@@ -125,6 +130,7 @@ export default {
       loadingMore: true,
       showFullDescription: false,
       createTime: 0,
+      subscribed: false,
     };
   },
   computed: {
@@ -161,6 +167,7 @@ export default {
         this.dj = data.dj;
         this.picUrl = data.picUrl;
         this.createTime = data.createTime;
+        this.subscribed = data.subed;
 
         // Reset programs
         this.programs = [];
@@ -204,6 +211,18 @@ export default {
         this.hasMore = data.more;
       });
       this.loadingMore = false;
+    },
+    toggleSubscribeDj() {
+      if (!isAccountLoggedIn()) {
+        this.showToast(locale.t('toast.needToLogin'));
+        return;
+      }
+      subscribeDj({
+        rid: this.rid,
+        t: this.subscribed ? 0 : 1,
+      }).then(data => {
+        if (data.code === 200) this.subscribed = !this.subscribed;
+      });
     },
     toggleFullDescription() {
       this.showFullDescription = !this.showFullDescription;
