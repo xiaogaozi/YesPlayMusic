@@ -97,7 +97,7 @@
               </div>
             </div>
             <div class="progress-bar">
-              <span>{{ formatTrackTime(player.progress) || '0:00' }}</span>
+              <span>{{ formatTrackTime(player.progress) || '00:00' }}</span>
               <div class="slider">
                 <vue-slider
                   v-model="player.progress"
