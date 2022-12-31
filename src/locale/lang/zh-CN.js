@@ -114,6 +114,9 @@ export default {
     pause: '暂停',
     mute: '静音',
     nextUp: '播放列表',
+    rate: '播放速率',
+    backward: '后退（15 秒）',
+    forward: '快进（30 秒）',
   },
   modal: {
     close: '关闭',

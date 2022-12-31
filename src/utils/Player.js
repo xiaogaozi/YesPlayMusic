@@ -530,7 +530,7 @@ export default class {
       ? this._personalFMNextTrack?.id ?? 0
       : this._getNextTrack()[0];
     if (!nextTrackID) return;
-    if (this._personalFMTrack.id == nextTrackID) return;
+    if (this._personalFMTrack?.id == nextTrackID) return;
     if (this._playlistSource.type === 'dj') {
       let programId = this._playlistSource.id[nextTrackID] || nextTrackID;
       getDjProgramDetail(programId).then(data => {
@@ -824,6 +824,21 @@ export default class {
       return;
     }
     this._howler?._sounds[0]._node.setSinkId(store.state.settings.outputDevice);
+  }
+
+  backwardTrack() {
+    if (this._howler) {
+      const backwardTime = this.progress - 15;
+      console.debug(`Backward current track to ${backwardTime} seconds`);
+      this.seek(backwardTime);
+    }
+  }
+  forwardTrack() {
+    if (this._howler) {
+      const forwardTime = this.progress + 30;
+      console.debug(`Forward current track to ${forwardTime} seconds`);
+      this.seek(forwardTime);
+    }
   }
 
   replacePlaylist(

@@ -21,6 +21,18 @@ export default [
     globalShortcut: 'Alt+CommandOrControl+Left',
   },
   {
+    id: 'forward',
+    name: '快进',
+    shortcut: 'Right',
+    globalShortcut: '',
+  },
+  {
+    id: 'backward',
+    name: '后退',
+    shortcut: 'Left',
+    globalShortcut: '',
+  },
+  {
     id: 'increaseVolume',
     name: '增加音量',
     shortcut: 'CommandOrControl+Up',

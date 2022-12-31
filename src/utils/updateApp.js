@@ -1,4 +1,5 @@
 import initLocalStorage from '@/store/initLocalStorage.js';
+
 import pkg from '../../package.json';
 
 const updateSetting = () => {
@@ -12,21 +13,26 @@ const updateSetting = () => {
     settings.shortcuts.length !== initLocalStorage.settings.shortcuts.length
   ) {
     // 当新增 shortcuts 时
-    const oldShortcutsId = settings.shortcuts.map(s => s.id);
-    const newShortcutsId = initLocalStorage.settings.shortcuts.filter(
-      s => oldShortcutsId.includes(s.id) === false
+    const newShortcuts = initLocalStorage.settings.shortcuts.map(
+      newShortcut => {
+        const oldShortcut = settings.shortcuts.find(
+          s => s.id === newShortcut.id
+        );
+        if (oldShortcut) {
+          newShortcut.shortcut = oldShortcut.shortcut;
+          newShortcut.globalShortcut = oldShortcut.globalShortcut;
+        }
+        return newShortcut;
+      }
     );
-    newShortcutsId.map(id => {
-      settings.shortcuts.push(
-        initLocalStorage.settings.shortcuts.find(s => s.id === id)
-      );
-    });
+    settings.shortcuts = newShortcuts;
   }
 
   if (localStorage.getItem('appVersion') === '"0.3.9"') {
     settings.lyricsBackground = true;
   }
 
+  console.info(`Update settings: ${JSON.stringify(settings)}`);
   localStorage.setItem('settings', JSON.stringify(settings));
 };
 

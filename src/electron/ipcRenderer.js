@@ -35,6 +35,14 @@ export function ipcRenderer(vueInstance) {
     player.playOrPause();
   });
 
+  ipcRenderer.on('backward', () => {
+    player.backwardTrack();
+  });
+
+  ipcRenderer.on('forward', () => {
+    player.forwardTrack();
+  });
+
   ipcRenderer.on('next', () => {
     if (player.isPersonalFM) {
       player.playNextFMTrack();

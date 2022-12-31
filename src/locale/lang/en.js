@@ -113,6 +113,9 @@ export default {
     pause: 'Pause',
     mute: 'Mute',
     nextUp: 'Next Up',
+    rate: 'Rate',
+    backward: 'Backward (15 seconds)',
+    forward: 'Forward (30 seconds)',
   },
   modal: {
     close: 'Close',

@@ -151,12 +151,22 @@
                   <svg-icon icon-class="thumbs-down" />
                 </button-icon>
                 <button-icon
+                  :title="$t('player.backward')"
+                  @click.native="backwardTrack"
+                  ><svg-icon icon-class="rotate-left-solid"
+                /></button-icon>
+                <button-icon
                   id="play"
                   :title="$t(player.playing ? 'player.pause' : 'player.play')"
                   @click.native="playOrPause"
                 >
                   <svg-icon :icon-class="player.playing ? 'pause' : 'play'" />
                 </button-icon>
+                <button-icon
+                  :title="$t('player.forward')"
+                  @click.native="forwardTrack"
+                  ><svg-icon icon-class="rotate-right-solid"
+                /></button-icon>
                 <button-icon
                   :title="$t('player.next')"
                   @click.native="playNextTrack"
@@ -348,6 +358,12 @@ export default {
       } else {
         this.player.playNextTrack();
       }
+    },
+    backwardTrack() {
+      this.player.backwardTrack();
+    },
+    forwardTrack() {
+      this.player.forwardTrack();
     },
     getLyric() {
       if (!this.currentTrack.id || this.player.playlistSource.type === 'dj')

@@ -1,7 +1,8 @@
 import defaultShortcuts from '@/utils/shortcuts';
-const { globalShortcut } = require('electron');
 
+const { globalShortcut } = require('electron');
 const clc = require('cli-color');
+
 const log = text => {
   console.log(`${clc.blueBright('[globalShortcut.js]')} ${text}`);
 };
@@ -55,4 +56,15 @@ export function registerGlobalShortcut(win, store) {
       win.isVisible() ? win.hide() : win.show();
     }
   );
+
+  // Media control
+  globalShortcut.register('MediaPlayPause', () => {
+    win.webContents.send('play');
+  });
+  globalShortcut.register('MediaNextTrack', () => {
+    win.webContents.send('forward');
+  });
+  globalShortcut.register('MediaPreviousTrack', () => {
+    win.webContents.send('backward');
+  });
 }
