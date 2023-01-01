@@ -51,11 +51,14 @@ export function userPlaylist(params) {
     params,
   }).then(data => {
     // Add space automatically
-    data.playlist = data.playlist.map(playlist => {
-      playlist.name = pangu.spacing(playlist.name);
-      playlist.description = pangu.spacing(playlist.description);
-      return playlist;
-    });
+    if (data.playlist) {
+      data.playlist = data.playlist.map(playlist => {
+        playlist.name = pangu.spacing(playlist.name);
+        playlist.description = pangu.spacing(playlist.description);
+        return playlist;
+      });
+    }
+
     return data;
   });
 }

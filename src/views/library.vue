@@ -301,10 +301,12 @@ export default {
       return playlists;
     },
     playHistoryList() {
-      if (this.show && this.playHistoryMode === 'week') {
-        return this.liked.playHistory.weekData;
-      } else if (this.show && this.playHistoryMode === 'all') {
-        return this.liked.playHistory.allData;
+      if (this.liked.playHistory) {
+        if (this.show && this.playHistoryMode === 'week') {
+          return this.liked.playHistory.weekData;
+        } else if (this.show && this.playHistoryMode === 'all') {
+          return this.liked.playHistory.allData;
+        }
       }
       return [];
     },
