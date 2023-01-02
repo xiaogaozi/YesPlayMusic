@@ -479,6 +479,7 @@ export default class {
           al: { ...data.radio, picUrl: data.coverUrl },
           ar: data.mainSong.artists.map(ar => {
             ar.id = data.radio.id;
+            ar.name = data.radio.name;
             return ar;
           }),
           dt: data.mainSong.duration,

@@ -15,7 +15,6 @@
       <div class="info">
         <div class="title">{{ title }}</div>
         <div v-if="subtitle !== ''" class="subtitle">{{ subtitle }}</div>
-        <div class="artist">Podcast by {{ dj.nickname }}</div>
         <div class="date-and-count">
           <span :title="createTime | formatDate">{{
             new Date(createTime).getFullYear()
@@ -199,7 +198,7 @@ export default {
               },
               ar: [
                 {
-                  name: p.dj.nickname,
+                  name: p.name,
                 },
               ],
             };
