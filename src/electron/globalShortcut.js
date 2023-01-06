@@ -44,18 +44,18 @@ export function registerGlobalShortcut(win, store) {
   //     win.webContents.send('decreaseVolume');
   //   }
   // );
-  globalShortcut.register(
-    shortcuts.find(s => s.id === 'like').globalShortcut,
-    () => {
-      win.webContents.send('like');
-    }
-  );
-  globalShortcut.register(
-    shortcuts.find(s => s.id === 'minimize').globalShortcut,
-    () => {
-      win.isVisible() ? win.hide() : win.show();
-    }
-  );
+  // globalShortcut.register(
+  //   shortcuts.find(s => s.id === 'like').globalShortcut,
+  //   () => {
+  //     win.webContents.send('like');
+  //   }
+  // );
+  // globalShortcut.register(
+  //   shortcuts.find(s => s.id === 'minimize').globalShortcut,
+  //   () => {
+  //     win.isVisible() ? win.hide() : win.show();
+  //   }
+  // );
 
   // Media control
   globalShortcut.register('MediaPlayPause', () => {
