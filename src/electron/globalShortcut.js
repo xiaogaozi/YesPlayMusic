@@ -56,15 +56,4 @@ export function registerGlobalShortcut(win, store) {
   //     win.isVisible() ? win.hide() : win.show();
   //   }
   // );
-
-  // Media control
-  globalShortcut.register('MediaPlayPause', () => {
-    win.webContents.send('play');
-  });
-  globalShortcut.register('MediaNextTrack', () => {
-    win.webContents.send('forward');
-  });
-  globalShortcut.register('MediaPreviousTrack', () => {
-    win.webContents.send('backward');
-  });
 }

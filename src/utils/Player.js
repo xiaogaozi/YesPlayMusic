@@ -561,11 +561,17 @@ export default class {
         this.pause();
       });
       navigator.mediaSession.setActionHandler('previoustrack', () => {
-        this.playPrevTrack();
+        if (this._playlistSource.type === 'dj') {
+          this.backwardTrack();
+        } else {
+          this.playPrevTrack();
+        }
       });
       navigator.mediaSession.setActionHandler('nexttrack', () => {
         if (this.isPersonalFM) {
           this.playNextFMTrack();
+        } else if (this._playlistSource.type === 'dj') {
+          this.forwardTrack();
         } else {
           this.playNextTrack();
         }
