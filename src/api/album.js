@@ -1,7 +1,8 @@
 import pangu from 'pangu';
-import request from '@/utils/request';
-import { mapTrackPlayableStatus } from '@/utils/common';
+
 import { cacheAlbum, getAlbumFromCache } from '@/utils/db';
+import { mapTrackPlayableStatus } from '@/utils/common';
+import request from '@/utils/request';
 
 /**
  * 获取专辑内容
@@ -21,6 +22,7 @@ export function getAlbum(id) {
       data.album.name = pangu.spacing(data.album.name);
       data.album.description = pangu.spacing(data.album.description);
       data.album.artist.name = pangu.spacing(data.album.artist.name);
+      data.album.company = pangu.spacing(data.album.company);
 
       cacheAlbum(id, data);
       data.songs = mapTrackPlayableStatus(data.songs);

@@ -161,7 +161,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['liked', 'player']),
+    ...mapState(['liked', 'player', 'recentPlayDjProgramsCache']),
     isRightClickedTrackLiked() {
       return this.liked.songs.includes(this.rightClickedTrack?.id);
     },
@@ -220,13 +220,39 @@ export default {
       } else if (this.dbclickTrackFunc === 'playCloudDisk') {
         let trackIDs = this.tracks.map(t => t.id || t.songId);
         this.player.replacePlaylist(trackIDs, this.id, 'cloudDisk', trackID);
-      } else if (this.dbclickTrackFunc === 'playDjPrograms') {
+      } else if (
+        this.dbclickTrackFunc === 'playDjPrograms' ||
+        this.dbclickTrackFunc === 'playDjProgramsHistory'
+      ) {
         let programMap = {};
         let trackIDs = this.tracks.map(t => {
           programMap[t.mainTrackId] = t.id;
           return t.mainTrackId;
         });
-        this.player.replacePlaylist(trackIDs, programMap, 'dj', trackID);
+
+        // Add track ID to the beginning of track list when play DJ programs history
+        if (this.dbclickTrackFunc === 'playDjProgramsHistory') {
+          trackIDs = trackIDs.filter(tid => tid !== trackID);
+          trackIDs.unshift(trackID);
+        }
+
+        this.player
+          .replacePlaylist(trackIDs, programMap, 'dj', trackID)
+          .then(() => {
+            // Set progress from play history
+            const playedPrograms = new Array(
+              ...this.recentPlayDjProgramsCache.values()
+            );
+            const playingProgram = playedPrograms.find(p => {
+              return p.mainSong.id === trackID;
+            });
+            if (playingProgram && playingProgram.progress) {
+              console.debug(
+                `Seek progress of DJ program ${playingProgram.id} (${playingProgram.name}) to: ${playingProgram.progress}`
+              );
+              this.player.seek(playingProgram.progress);
+            }
+          });
       }
     },
     playThisListDefault(trackID) {

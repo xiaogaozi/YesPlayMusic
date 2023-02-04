@@ -193,14 +193,10 @@ export default {
             };
             p = {
               ...p,
-              al: {
-                picUrl: p.coverUrl,
-              },
-              ar: [
-                {
-                  name: p.name,
-                },
-              ],
+
+              // Context menu needed properties
+              al: { picUrl: p.coverUrl },
+              ar: [{ name: p.name }],
             };
             // Use create time as the artist name
             p.mainSong.artists[0].name = formatTimestamp(p.createTime);

@@ -1,6 +1,7 @@
+import updateApp from '@/utils/updateApp';
+
 import initLocalStorage from './initLocalStorage';
 import pkg from '../../package.json';
-import updateApp from '@/utils/updateApp';
 
 if (localStorage.getItem('appVersion') === null) {
   localStorage.setItem('settings', JSON.stringify(initLocalStorage.settings));
@@ -9,6 +10,15 @@ if (localStorage.getItem('appVersion') === null) {
 }
 
 updateApp();
+
+function _loadRecentPlayDjPrograms() {
+  const data = JSON.parse(localStorage.getItem('data'));
+  const recentPlayDjPrograms = data.recentPlayDjPrograms || [];
+  console.debug(
+    `Load ${recentPlayDjPrograms.length} recent played DJ programs from local storage`
+  );
+  return new Map(recentPlayDjPrograms);
+}
 
 export default {
   showLyrics: false,
@@ -44,6 +54,7 @@ export default {
     },
   },
   dailyTracks: [],
+  recentPlayDjProgramsCache: _loadRecentPlayDjPrograms(), // The last item is the most recent played program
   lastfm: JSON.parse(localStorage.getItem('lastfm')) || {},
   player: JSON.parse(localStorage.getItem('player')),
   settings: JSON.parse(localStorage.getItem('settings')),

@@ -41,6 +41,7 @@ const updateData = () => {
   const data = {
     ...parsedData,
   };
+  console.debug(`updateData: ${JSON.stringify(data)}`);
   localStorage.setItem('data', JSON.stringify(data));
 };
 

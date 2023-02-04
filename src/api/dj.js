@@ -1,5 +1,6 @@
 import pangu from 'pangu';
 
+import { cacheDjProgramDetail, getDjProgramDetailFromCache } from '@/utils/db';
 import request from '@/utils/request';
 
 /**
@@ -62,20 +63,26 @@ export function getDjPrograms(rid, params) {
  * @param id
  */
 export function getDjProgramDetail(id) {
-  return request({
-    url: '/dj/program/detail',
-    method: 'get',
-    params: {
-      id,
-    },
-  }).then(data => {
-    // Add space automatically
-    data.program.name = pangu.spacing(data.program.name);
-    data.program.description = pangu.spacing(data.program.description);
-    data.program.radio.name = pangu.spacing(data.program.radio.name);
-    data.program.mainSong.name = pangu.spacing(data.program.mainSong.name);
+  const fetchLatest = () => {
+    return request({
+      url: '/dj/program/detail',
+      method: 'get',
+      params: {
+        id,
+      },
+    }).then(data => {
+      // Add space automatically
+      data.program.name = pangu.spacing(data.program.name);
+      data.program.description = pangu.spacing(data.program.description);
+      data.program.radio.name = pangu.spacing(data.program.radio.name);
+      data.program.mainSong.name = pangu.spacing(data.program.mainSong.name);
 
-    return data;
+      cacheDjProgramDetail(data);
+      return data;
+    });
+  };
+  return getDjProgramDetailFromCache(id).then(result => {
+    return result ?? fetchLatest();
   });
 }
 

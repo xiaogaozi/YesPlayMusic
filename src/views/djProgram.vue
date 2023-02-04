@@ -153,14 +153,10 @@ export default {
               dt: this.djProgram.duration,
               playable: true,
             },
-            al: {
-              picUrl: this.djProgram.coverUrl,
-            },
-            ar: [
-              {
-                name: this.djProgram.radio.name,
-              },
-            ],
+
+            // Context menu needed properties
+            al: { picUrl: this.djProgram.coverUrl },
+            ar: [{ name: this.djProgram.radio.name }],
           },
         ];
         NProgress.done();

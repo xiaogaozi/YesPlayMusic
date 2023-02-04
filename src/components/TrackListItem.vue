@@ -41,6 +41,7 @@
             <ArtistsInLine
               :artists="track.ar"
               :exclude="$parent.albumObject.artist.name"
+              :type="type"
               prefix="-"
           /></span>
           <span v-if="isAlbum && track.mark === 1318912" class="explicit-symbol"
@@ -56,7 +57,7 @@
             class="explicit-symbol before-artist"
             ><ExplicitSymbol :size="15"
           /></span>
-          <ArtistsInLine :artists="artists" />
+          <ArtistsInLine :artists="artists" :type="type" />
         </div>
       </div>
       <div></div>

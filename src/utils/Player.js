@@ -36,14 +36,14 @@ function setTitle(track) {
   document.title = track
     ? `${track.name} · ${track.ar[0].name} - YesPlayMusic`
     : 'YesPlayMusic';
-  if (isCreateTray) {
+  if (isCreateTray && ipcRenderer) {
     ipcRenderer.send('updateTrayTooltip', document.title);
   }
   store.commit('updateTitle', document.title);
 }
 
 function setTrayLikeState(isLiked) {
-  if (isCreateTray) {
+  if (isCreateTray && ipcRenderer) {
     ipcRenderer.send('updateTrayLikeState', isLiked);
   }
 }
@@ -234,7 +234,7 @@ export default class {
   }
   _setPlaying(isPlaying) {
     this._playing = isPlaying;
-    if (isCreateTray) {
+    if (isCreateTray && ipcRenderer) {
       ipcRenderer.send('updateTrayPlayState', this._playing);
     }
   }
@@ -246,7 +246,7 @@ export default class {
       if (this._howler === null) return;
       this._progress = this._howler.seek();
       localStorage.setItem('playerCurrentTrackTime', this._progress);
-      if (isCreateMpris) {
+      if (isCreateMpris && ipcRenderer) {
         ipcRenderer.send('playerCurrentTrackTime', this._progress);
       }
     }, 1000);
@@ -472,23 +472,31 @@ export default class {
       this._scrobble(this.currentTrack, this._howler?.seek());
     }
     if (this._playlistSource.type === 'dj') {
+      const currentProgramOrTrackId =
+        this._playlistSource.id[this.currentTrack.id] || this.currentTrack.id;
+      const currentProgress = this.progress;
       let programId = this._playlistSource.id[id] || id;
       return getDjProgramDetail(programId).then(data => {
-        data = data.program;
+        const program = data.program;
         let track = {
-          al: { ...data.radio, picUrl: data.coverUrl },
-          ar: data.mainSong.artists.map(ar => {
-            ar.id = data.radio.id;
-            ar.name = data.radio.name;
+          al: { ...program.radio, picUrl: program.coverUrl },
+          ar: program.mainSong.artists.map(ar => {
+            ar.id = program.radio.id;
+            ar.name = program.radio.name;
             return ar;
           }),
-          dt: data.mainSong.duration,
-          ...data.mainSong,
+          dt: program.mainSong.duration,
+          ...program.mainSong,
         };
         this._currentTrack = track;
         this._updateMediaSessionMetaData(track);
         return this._getAudioSource(track).then(source => {
           if (source) {
+            store.commit('updateRecentPlayDjPrograms', {
+              program,
+              prevProgramOrTrackId: currentProgramOrTrackId,
+              prevProgramProgress: currentProgress,
+            });
             this._playAudioSource(source, autoplay);
             this._cacheNextTrack();
             return source;
@@ -619,7 +627,7 @@ export default class {
     };
 
     navigator.mediaSession.metadata = new window.MediaMetadata(metadata);
-    if (isCreateMpris) {
+    if (isCreateMpris && ipcRenderer) {
       ipcRenderer.send('metadata', metadata);
     }
   }
@@ -830,7 +838,11 @@ export default class {
     if (this._howler?._sounds.length <= 0 || !this._howler?._sounds[0]._node) {
       return;
     }
-    this._howler?._sounds[0]._node.setSinkId(store.state.settings.outputDevice);
+    if (this._howler?._sounds[0]._node.setSinkId) {
+      this._howler?._sounds[0]._node.setSinkId(
+        store.state.settings.outputDevice
+      );
+    }
   }
 
   backwardTrack() {
@@ -864,10 +876,10 @@ export default class {
     };
     if (this.shuffle) this._shuffleTheList(autoPlayTrackID);
     if (autoPlayTrackID === 'first') {
-      this._replaceCurrentTrack(this.list[0]);
+      return this._replaceCurrentTrack(this.list[0]);
     } else {
       this.current = trackIDs.indexOf(autoPlayTrackID);
-      this._replaceCurrentTrack(autoPlayTrackID);
+      return this._replaceCurrentTrack(autoPlayTrackID);
     }
   }
   playAlbumByID(id, trackID = 'first') {
