@@ -236,23 +236,7 @@ export default {
           trackIDs.unshift(trackID);
         }
 
-        this.player
-          .replacePlaylist(trackIDs, programMap, 'dj', trackID)
-          .then(() => {
-            // Set progress from play history
-            const playedPrograms = new Array(
-              ...this.recentPlayDjProgramsCache.values()
-            );
-            const playingProgram = playedPrograms.find(p => {
-              return p.mainSong.id === trackID;
-            });
-            if (playingProgram && playingProgram.progress) {
-              console.debug(
-                `Seek progress of DJ program ${playingProgram.id} (${playingProgram.name}) to: ${playingProgram.progress}`
-              );
-              this.player.seek(playingProgram.progress);
-            }
-          });
+        this.player.replacePlaylist(trackIDs, programMap, 'dj', trackID);
       }
     },
     playThisListDefault(trackID) {

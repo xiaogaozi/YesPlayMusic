@@ -490,23 +490,42 @@ export default class {
         };
         this._currentTrack = track;
         this._updateMediaSessionMetaData(track);
-        return this._getAudioSource(track).then(source => {
-          if (source) {
-            store.commit('updateRecentPlayDjPrograms', {
-              program,
-              prevProgramOrTrackId: currentProgramOrTrackId,
-              prevProgramProgress: currentProgress,
-            });
-            this._playAudioSource(source, autoplay);
-            this._cacheNextTrack();
-            return source;
-          } else {
-            store.dispatch('showToast', `无法播放 ${track.name}`);
-            ifUnplayableThen === 'playNextTrack'
-              ? this.playNextTrack()
-              : this.playPrevTrack();
-          }
-        });
+        return this._getAudioSource(track)
+          .then(source => {
+            if (source) {
+              store.commit('updateRecentPlayDjPrograms', {
+                program,
+                prevProgramOrTrackId: currentProgramOrTrackId,
+                prevProgramProgress: currentProgress,
+              });
+              this._playAudioSource(source, autoplay);
+              this._cacheNextTrack();
+              return source;
+            } else {
+              store.dispatch('showToast', `无法播放 ${track.name}`);
+              ifUnplayableThen === 'playNextTrack'
+                ? this.playNextTrack()
+                : this.playPrevTrack();
+              return null;
+            }
+          })
+          .then(source => {
+            // Set progress from play history
+            if (source) {
+              const playedPrograms = new Array(
+                ...store.state.recentPlayDjProgramsCache.values()
+              );
+              const playingProgram = playedPrograms.find(p => {
+                return p.mainSong.id === id;
+              });
+              if (playingProgram && playingProgram.progress) {
+                console.debug(
+                  `Seek progress of DJ program ${playingProgram.id} (${playingProgram.name}) to: ${playingProgram.progress}`
+                );
+                this.seek(playingProgram.progress);
+              }
+            }
+          });
       });
     } else {
       return getTrackDetail(id).then(data => {
@@ -876,10 +895,10 @@ export default class {
     };
     if (this.shuffle) this._shuffleTheList(autoPlayTrackID);
     if (autoPlayTrackID === 'first') {
-      return this._replaceCurrentTrack(this.list[0]);
+      this._replaceCurrentTrack(this.list[0]);
     } else {
       this.current = trackIDs.indexOf(autoPlayTrackID);
-      return this._replaceCurrentTrack(autoPlayTrackID);
+      this._replaceCurrentTrack(autoPlayTrackID);
     }
   }
   playAlbumByID(id, trackID = 'first') {

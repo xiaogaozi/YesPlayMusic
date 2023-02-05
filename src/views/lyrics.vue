@@ -307,7 +307,7 @@ export default {
       };
     },
     noLyric() {
-      return this.lyric.length == 0;
+      return this.lyric.length == 0 || this.player.playlistSource.type === 'dj';
     },
     artist() {
       return this.currentTrack?.ar
