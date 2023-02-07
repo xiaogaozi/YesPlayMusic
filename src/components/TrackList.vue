@@ -42,7 +42,7 @@
         v-if="extraContextMenuItem.includes('removeTrackFromPlaylist')"
         class="item"
         @click="removeTrackFromPlaylist"
-        >从歌单中删除</div
+        >{{ $t('contextMenu.removeFromPlaylist') }}</div
       >
       <div
         v-show="type !== 'cloudDisk' && type !== 'dj'"

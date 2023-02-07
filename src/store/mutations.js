@@ -76,31 +76,18 @@ export default {
   updateTitle(state, title) {
     state.title = title;
   },
-  updateRecentPlayDjPrograms(
-    state,
-    { program, prevProgramOrTrackId, prevProgramProgress }
-  ) {
-    // Save progress of previous played program
-    let prevProgram = null;
-    if (state.recentPlayDjProgramsCache.has(prevProgramOrTrackId)) {
-      prevProgram = state.recentPlayDjProgramsCache.get(prevProgramOrTrackId);
-    } else {
-      const programs = new Array(...state.recentPlayDjProgramsCache.values());
-      prevProgram = programs.find(p => {
-        return p.mainSong.id === prevProgramOrTrackId;
-      });
+  updateLatestDjProgramProgress(state, { programId, progress }) {
+    const historyListLen = state.data.recentPlayDjPrograms.length;
+    const latestProgram =
+      state.data.recentPlayDjPrograms[historyListLen - 1][1];
+    if (latestProgram.id === programId) {
+      latestProgram.progress = progress;
+      // console.debug(
+      //   `Save progress of current playing DJ program ${latestProgram.id} (${latestProgram.name}) to ${progress}`
+      // );
     }
-    if (prevProgram) {
-      console.debug(
-        `Save progress of previous DJ program ${prevProgram.id} (${prevProgram.name}) to ${prevProgramProgress}`
-      );
-      prevProgram.progress = prevProgramProgress;
-    } else {
-      console.warn(
-        `The previous played DJ program ${prevProgramOrTrackId} not found`
-      );
-    }
-
+  },
+  updateRecentPlayDjPrograms(state, { program }) {
     // Delete program from cache if it exists, then add it again.
     if (state.recentPlayDjProgramsCache.has(program.id)) {
       program.progress = state.recentPlayDjProgramsCache.get(

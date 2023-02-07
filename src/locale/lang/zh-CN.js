@@ -220,6 +220,7 @@ export default {
     saveToLibrary: '保存到音乐库',
     removeFromLibrary: '从音乐库删除',
     addToPlaylist: '添加到歌单',
+    removeFromPlaylist: '从歌单中删除',
     searchInPlaylist: '歌单内搜索',
     copyUrl: '复制链接',
     openInBrowser: '在浏览器中打开',

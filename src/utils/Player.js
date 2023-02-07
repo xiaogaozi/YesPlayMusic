@@ -212,7 +212,12 @@ export default class {
     if (this._enabled) {
       // 恢复当前播放歌曲
       this._replaceCurrentTrack(this._currentTrack.id, false).then(() => {
-        this._howler?.seek(localStorage.getItem('playerCurrentTrackTime') ?? 0);
+        // The progress of DJ program already saved in state.data.recentPlayDjPrograms
+        if (this._playlistSource.type !== 'dj') {
+          this._howler?.seek(
+            localStorage.getItem('playerCurrentTrackTime') ?? 0
+          );
+        }
       }); // update audio source and init howler
       this._initMediaSession();
     }
@@ -244,10 +249,17 @@ export default class {
     // 这个定时器会覆盖之前改变的值，是bug
     setInterval(() => {
       if (this._howler === null) return;
+      const currentTrackId = this._currentTrack.id;
       this._progress = this._howler.seek();
+
       localStorage.setItem('playerCurrentTrackTime', this._progress);
       if (isCreateMpris && ipcRenderer) {
         ipcRenderer.send('playerCurrentTrackTime', this._progress);
+      }
+
+      // Save progress of current playing DJ program
+      if (this.playing && this._playlistSource.type === 'dj') {
+        this._saveCurrentDjProgramProgress(currentTrackId, this._progress);
       }
     }, 1000);
   }
@@ -331,6 +343,14 @@ export default class {
       rate: this.rate,
       format: ['mp3', 'flac'],
       onend: () => {
+        // Reset progress to 0 when playing DJ program ends
+        if (this._playlistSource.type === 'dj') {
+          this._saveCurrentDjProgramProgress(
+            this._currentTrack.id,
+            0 /* progress */
+          );
+        }
+
         this._nextTrackCallback();
       },
     });
@@ -472,9 +492,11 @@ export default class {
       this._scrobble(this.currentTrack, this._howler?.seek());
     }
     if (this._playlistSource.type === 'dj') {
-      const currentProgramOrTrackId =
-        this._playlistSource.id[this.currentTrack.id] || this.currentTrack.id;
-      const currentProgress = this.progress;
+      if (this.playing) {
+        // Set playing to false to prevent this._setIntervals() from saving incorrect progress
+        this._setPlaying(false);
+      }
+
       let programId = this._playlistSource.id[id] || id;
       return getDjProgramDetail(programId).then(data => {
         const program = data.program;
@@ -488,16 +510,14 @@ export default class {
           dt: program.mainSong.duration,
           ...program.mainSong,
         };
-        this._currentTrack = track;
-        this._updateMediaSessionMetaData(track);
         return this._getAudioSource(track)
           .then(source => {
             if (source) {
               store.commit('updateRecentPlayDjPrograms', {
                 program,
-                prevProgramOrTrackId: currentProgramOrTrackId,
-                prevProgramProgress: currentProgress,
               });
+              this._currentTrack = track;
+              this._updateMediaSessionMetaData(track);
               this._playAudioSource(source, autoplay);
               this._cacheNextTrack();
               return source;
@@ -512,12 +532,8 @@ export default class {
           .then(source => {
             // Set progress from play history
             if (source) {
-              const playedPrograms = new Array(
-                ...store.state.recentPlayDjProgramsCache.values()
-              );
-              const playingProgram = playedPrograms.find(p => {
-                return p.mainSong.id === id;
-              });
+              const playingProgram =
+                store.state.recentPlayDjProgramsCache.get(programId);
               if (playingProgram && playingProgram.progress) {
                 console.debug(
                   `Seek progress of DJ program ${playingProgram.id} (${playingProgram.name}) to: ${playingProgram.progress}`
@@ -713,6 +729,31 @@ export default class {
       return null;
     }
     ipcRenderer.send('pauseDiscordPresence', track);
+  }
+  _saveCurrentDjProgramProgress(currentTrackId, progress) {
+    if (this._playlistSource.type === 'dj') {
+      const currentProgramId = this._playlistSource.id[currentTrackId];
+      if (store.state.recentPlayDjProgramsCache.has(currentProgramId)) {
+        // Update cache
+        const currentProgram =
+          store.state.recentPlayDjProgramsCache.get(currentProgramId);
+        currentProgram.progress = progress;
+
+        // Update state.data.recentPlayDjPrograms
+        store.commit('updateLatestDjProgramProgress', {
+          programId: currentProgramId,
+          progress,
+        });
+      } else {
+        console.warn(
+          `The current playing DJ program ${currentProgramId} not found`
+        );
+      }
+    } else {
+      console.warn(
+        `Current playlist source type isn't DJ: ${this._playlistSource.type}`
+      );
+    }
   }
 
   currentTrackID() {

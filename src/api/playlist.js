@@ -1,6 +1,7 @@
 import pangu from 'pangu';
-import request from '@/utils/request';
+
 import { mapTrackPlayableStatus } from '@/utils/common';
+import request from '@/utils/request';
 
 /**
  * 推荐歌单
@@ -52,6 +53,9 @@ export function getPlaylistDetail(id, noCache = false) {
       // Add space automatically
       data.playlist.name = pangu.spacing(data.playlist.name);
       data.playlist.description = pangu.spacing(data.playlist.description);
+      data.playlist.creator.nickname = pangu.spacing(
+        data.playlist.creator.nickname
+      );
       data.playlist.tracks = data.playlist.tracks.map(track => {
         track.ar = track.ar.map(artist => {
           artist.name = pangu.spacing(artist.name);
