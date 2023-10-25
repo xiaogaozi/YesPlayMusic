@@ -1,8 +1,10 @@
-import { isAccountLoggedIn } from './auth';
-import { refreshCookie } from '@/api/auth';
-import { dailySignin } from '@/api/user';
 import dayjs from 'dayjs';
+
+import { dailySignin } from '@/api/user';
+import { refreshCookie } from '@/api/auth';
 import store from '@/store';
+
+import { isAccountLoggedIn } from './auth';
 
 export function isTrackPlayable(track) {
   let result = {
@@ -221,7 +223,13 @@ export function bytesToSize(bytes) {
 
 export function formatTrackTime(value) {
   if (!value) return '';
-  let min = ~~((value / 60) % 60);
+  let hour = ~~((value / 60 / 60) % 60);
+  let min = (~~((value / 60) % 60)).toString().padStart(2, '0');
   let sec = (~~(value % 60)).toString().padStart(2, '0');
-  return `${min}:${sec}`;
+  return hour > 0 ? `${hour}:${min}:${sec}` : `${min}:${sec}`;
+}
+
+export function formatTimestamp(ts) {
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 }

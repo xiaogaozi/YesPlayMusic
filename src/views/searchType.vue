@@ -30,6 +30,9 @@
     <div v-if="type === 'playlists'">
       <CoverRow type="playlist" :items="result" sub-text="title" />
     </div>
+    <div v-if="type === 'podcasts'">
+      <CoverRow type="dj" :items="result" sub-text="title" />
+    </div>
 
     <div class="load-more">
       <ButtonTwoTone v-show="hasMore" color="grey" @click.native="fetchData">{{
@@ -76,6 +79,7 @@ export default {
         albums: locale.t('search.album'),
         artists: locale.t('search.artist'),
         playlists: locale.t('search.playlist'),
+        podcasts: locale.t('search.podcast'),
       };
     },
   },
@@ -90,6 +94,7 @@ export default {
         albums: 10,
         artists: 100,
         playlists: 1000,
+        podcasts: 1009,
       };
       return search({
         keywords: this.keywords,
@@ -120,6 +125,12 @@ export default {
             break;
           case 'playlists':
             this.result.push(...result.playlists);
+            break;
+          case 'podcasts':
+            this.result.push(...result.djRadios);
+            if (result.djRadiosCount <= this.result.length) {
+              this.hasMore = false;
+            }
             break;
         }
         NProgress.done();

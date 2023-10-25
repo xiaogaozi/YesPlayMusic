@@ -2,9 +2,11 @@
   <span class="artist-in-line">
     {{ computedPrefix }}
     <span v-for="(ar, index) in filteredArtists" :key="index">
-      <router-link v-if="ar.id !== 0" :to="`/artist/${ar.id}`">{{
-        ar.name
-      }}</router-link>
+      <router-link
+        v-if="ar.id !== 0"
+        :to="type === 'dj' ? `/dj/${ar.id}` : `/artist/${ar.id}`"
+        >{{ ar.name }}</router-link
+      >
       <span v-else>{{ ar.name }}</span>
       <span v-if="index !== filteredArtists.length - 1" class="separator"
         >,</span
@@ -29,6 +31,10 @@ export default {
       type: String,
       default: '',
     },
+    type: {
+      type: String,
+      default: 'tracklist',
+    }, // tracklist | album | playlist | cloudDisk | dj
   },
   computed: {
     filteredArtists() {

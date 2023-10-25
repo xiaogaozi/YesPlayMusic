@@ -1,4 +1,5 @@
 import pangu from 'pangu';
+
 import request from '@/utils/request';
 
 /**
@@ -50,11 +51,14 @@ export function userPlaylist(params) {
     params,
   }).then(data => {
     // Add space automatically
-    data.playlist = data.playlist.map(playlist => {
-      playlist.name = pangu.spacing(playlist.name);
-      playlist.description = pangu.spacing(playlist.description);
-      return playlist;
-    });
+    if (data.playlist) {
+      data.playlist = data.playlist.map(playlist => {
+        playlist.name = pangu.spacing(playlist.name);
+        playlist.description = pangu.spacing(playlist.description);
+        return playlist;
+      });
+    }
+
     return data;
   });
 }
@@ -185,6 +189,29 @@ export function likedMVs(params) {
       });
       return mv;
     });
+    return data;
+  });
+}
+
+/**
+ * 获取收藏的电台（需要登录）
+ * 说明 : 调用此接口可获取到用户收藏的电台
+ */
+export function likedDJs(params) {
+  return request({
+    url: '/dj/sublist',
+    method: 'get',
+    params: {
+      limit: params.limit,
+      timestamp: new Date().getTime(),
+    },
+  }).then(data => {
+    // Add space automatically
+    data.djRadios = data.djRadios.map(djRadio => {
+      djRadio.name = pangu.spacing(djRadio.name);
+      return djRadio;
+    });
+
     return data;
   });
 }

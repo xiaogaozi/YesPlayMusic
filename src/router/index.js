@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+
 import { isLooseLoggedIn, isAccountLoggedIn } from '@/utils/auth';
 
 Vue.use(VueRouter);
@@ -59,6 +60,20 @@ const routes = [
     path: '/mv/:id',
     name: 'mv',
     component: () => import('@/views/mv.vue'),
+  },
+  {
+    path: '/dj/:id',
+    name: 'dj',
+    component: () => import('@/views/dj.vue'),
+    meta: {
+      keepAlive: true,
+      savePosition: true,
+    },
+  },
+  {
+    path: '/dj/program/:id',
+    name: 'djProgram',
+    component: () => import('@/views/djProgram.vue'),
   },
   {
     path: '/next',

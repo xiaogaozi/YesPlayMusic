@@ -1,5 +1,6 @@
-import shortcuts from '@/utils/shortcuts';
 import cloneDeep from 'lodash/cloneDeep';
+
+import shortcuts from '@/utils/shortcuts';
 
 export default {
   updateLikedXXX(state, { name, data }) {
@@ -74,5 +75,34 @@ export default {
   },
   updateTitle(state, title) {
     state.title = title;
+  },
+  updateLatestDjProgramProgress(state, { programId, progress }) {
+    const historyListLen = state.data.recentPlayDjPrograms.length;
+    const latestProgram =
+      state.data.recentPlayDjPrograms[historyListLen - 1][1];
+    if (latestProgram.id === programId) {
+      latestProgram.progress = progress;
+      // console.debug(
+      //   `Save progress of current playing DJ program ${latestProgram.id} (${latestProgram.name}) to ${progress}`
+      // );
+    }
+  },
+  updateRecentPlayDjPrograms(state, { program }) {
+    // Delete program from cache if it exists, then add it again.
+    if (state.recentPlayDjProgramsCache.has(program.id)) {
+      program.progress = state.recentPlayDjProgramsCache.get(
+        program.id
+      ).progress;
+      state.recentPlayDjProgramsCache.delete(program.id);
+    }
+    state.recentPlayDjProgramsCache.set(program.id, program);
+
+    // TODO(gcj): Limit the maximum length of recentPlayDjProgramsCache
+    state.data.recentPlayDjPrograms = new Array(
+      ...state.recentPlayDjProgramsCache.entries()
+    );
+    console.debug(
+      `Add DJ program ${program.id} (${program.name}, ${program.progress}) to state.data.recentPlayDjPrograms, total ${state.data.recentPlayDjPrograms.length} items.`
+    );
   },
 };

@@ -1,5 +1,5 @@
 <template>
-  <div class="player" @click="toggleLyrics">
+  <div class="player">
     <div
       class="progress-bar"
       :class="{
@@ -27,7 +27,7 @@
         <div class="container" @click.stop>
           <img
             :src="currentTrack.al && currentTrack.al.picUrl | resizeImage(224)"
-            @click="goToAlbum"
+            @click="hasList() && goToList()"
           />
           <div class="track-info" :title="audioSource">
             <div
@@ -47,7 +47,7 @@
               </span>
             </div>
           </div>
-          <div class="like-button">
+          <div v-if="player.playlistSource.type !== 'dj'" class="like-button">
             <button-icon
               :title="$t('player.like')"
               @click.native="likeATrack(player.currentTrack.id)"
@@ -81,11 +81,21 @@
             ><svg-icon icon-class="thumbs-down"
           /></button-icon>
           <button-icon
+            :title="$t('player.backward')"
+            @click.native="backwardTrack"
+            ><svg-icon icon-class="rotate-left-solid"
+          /></button-icon>
+          <button-icon
             class="play"
             :title="$t(player.playing ? 'player.pause' : 'player.play')"
             @click.native="playOrPause"
           >
             <svg-icon :icon-class="player.playing ? 'pause' : 'play'"
+          /></button-icon>
+          <button-icon
+            :title="$t('player.forward')"
+            @click.native="forwardTrack"
+            ><svg-icon icon-class="rotate-right-solid"
           /></button-icon>
           <button-icon :title="$t('player.next')" @click.native="playNextTrack"
             ><svg-icon icon-class="next"
@@ -96,6 +106,12 @@
       <div class="right-control-buttons">
         <div class="blank"></div>
         <div class="container" @click.stop>
+          <button-icon
+            :title="$t('player.rate')"
+            :class="'rate'"
+            @click.native="openRateMenu"
+            >{{ player.rate }}x
+          </button-icon>
           <button-icon
             :title="$t('player.nextUp')"
             :class="{
@@ -172,6 +188,14 @@
         </div>
       </div>
     </div>
+
+    <ContextMenu ref="rateMenu" :align="'top'">
+      <div class="item" @click="setRate(0.5)">0.5x</div>
+      <div class="item" @click="setRate(1.0)">1x</div>
+      <div class="item" @click="setRate(1.5)">1.5x</div>
+      <div class="item" @click="setRate(1.75)">1.75x</div>
+      <div class="item" @click="setRate(2.0)">2x</div>
+    </ContextMenu>
   </div>
 </template>
 
@@ -180,13 +204,16 @@ import { mapState, mapMutations, mapActions } from 'vuex';
 import '@/assets/css/slider.css';
 
 import ButtonIcon from '@/components/ButtonIcon.vue';
+import ContextMenu from '@/components/ContextMenu.vue';
 import VueSlider from 'vue-slider-component';
+import { formatTrackTime } from '@/utils/common';
 import { goToListSource, hasListSource } from '@/utils/playList';
 
 export default {
   name: 'Player',
   components: {
     ButtonIcon,
+    ContextMenu,
     VueSlider,
   },
   computed: {
@@ -227,6 +254,12 @@ export default {
         this.player.playNextTrack();
       }
     },
+    backwardTrack() {
+      this.player.backwardTrack();
+    },
+    forwardTrack() {
+      this.player.forwardTrack();
+    },
     goToNextTracksPage() {
       if (this.player.isPersonalFM) return;
       this.$route.name === 'next'
@@ -234,10 +267,7 @@ export default {
         : this.$router.push({ name: 'next' });
     },
     formatTrackTime(value) {
-      if (!value) return '';
-      let min = ~~((value / 60) % 60);
-      let sec = (~~(value % 60)).toString().padStart(2, '0');
-      return `${min}:${sec}`;
+      return formatTrackTime(value);
     },
     hasList() {
       return hasListSource();
@@ -250,7 +280,14 @@ export default {
       this.$router.push({ path: '/album/' + this.player.currentTrack.al.id });
     },
     goToArtist(id) {
-      this.$router.push({ path: '/artist/' + id });
+      switch (this.player.playlistSource.type) {
+        case 'dj':
+          this.$router.push({ path: '/dj/' + id });
+          break;
+        default:
+          this.$router.push({ path: '/artist/' + id });
+          break;
+      }
     },
     moveToFMTrash() {
       this.player.moveToFMTrash();
@@ -266,6 +303,12 @@ export default {
     },
     mute() {
       this.player.mute();
+    },
+    openRateMenu(e) {
+      this.$refs.rateMenu.openMenu(e);
+    },
+    setRate(rate) {
+      this.player.rate = rate;
     },
   },
 };
@@ -424,6 +467,10 @@ export default {
     .volume-bar {
       width: 84px;
     }
+  }
+  .rate {
+    color: var(--color-text);
+    font-size: 16px;
   }
 }
 

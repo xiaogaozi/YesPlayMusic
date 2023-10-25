@@ -82,6 +82,13 @@
           </div>
           <div
             class="tab"
+            :class="{ active: currentTab === 'djs' }"
+            @click="updateCurrentTab('djs')"
+          >
+            {{ $t('library.podcasts') }}
+          </div>
+          <div
+            class="tab"
             :class="{ active: currentTab === 'cloudDisk' }"
             @click="updateCurrentTab('cloudDisk')"
           >
@@ -141,6 +148,10 @@
         <MvRow :mvs="liked.mvs" />
       </div>
 
+      <div v-show="currentTab === 'djs'">
+        <CoverRow :items="liked.djs" type="dj" :show-play-button="false" />
+      </div>
+
       <div v-show="currentTab === 'cloudDisk'">
         <TrackList
           :id="-8"
@@ -161,6 +172,9 @@
           @click="playHistoryMode = 'week'"
         >
           {{ $t('library.playHistory.week') }}
+          <span v-if="playHistoryMode === 'week'">
+            ({{ playHistoryList.length }})</span
+          >
         </button>
         <button
           :class="{
@@ -170,11 +184,29 @@
           @click="playHistoryMode = 'all'"
         >
           {{ $t('library.playHistory.all') }}
+          <span v-if="playHistoryMode === 'all'">
+            ({{ playHistoryList.length }})</span
+          >
+        </button>
+        <button
+          :class="{
+            'playHistory-button': true,
+            'playHistory-button--selected': playHistoryMode === 'podcast',
+          }"
+          @click="playHistoryMode = 'podcast'"
+        >
+          {{ $t('library.podcasts') }}
+          <span v-if="playHistoryMode === 'podcast'">
+            ({{ playHistoryList.length }})</span
+          >
         </button>
         <TrackList
           :tracks="playHistoryList"
-          :column-number="1"
-          type="tracklist"
+          :column-number="playHistoryMode === 'podcast' ? 4 : 1"
+          :type="playHistoryMode === 'podcast' ? 'dj' : 'tracklist'"
+          :dbclick-track-func="
+            playHistoryMode === 'podcast' ? 'playDjProgramsHistory' : 'default'
+          "
         />
       </div>
     </div>
@@ -213,11 +245,13 @@
 
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex';
-import { randomNum, dailyTask } from '@/utils/common';
-import { isAccountLoggedIn } from '@/utils/auth';
-import { uploadSong } from '@/api/user';
-import { getLyric } from '@/api/track';
 import NProgress from 'nprogress';
+import forEachRight from 'lodash/forEachRight';
+
+import { getLyric } from '@/api/track';
+import { isAccountLoggedIn } from '@/utils/auth';
+import { randomNum, dailyTask } from '@/utils/common';
+import { uploadSong } from '@/api/user';
 import locale from '@/locale';
 
 import ContextMenu from '@/components/ContextMenu.vue';
@@ -290,11 +324,37 @@ export default {
       return playlists;
     },
     playHistoryList() {
-      if (this.show && this.playHistoryMode === 'week') {
-        return this.liked.playHistory.weekData;
-      } else if (this.show && this.playHistoryMode === 'all') {
-        return this.liked.playHistory.allData;
+      if (this.liked.playHistory) {
+        if (this.show && this.playHistoryMode === 'week') {
+          return this.liked.playHistory.weekData;
+        } else if (this.show && this.playHistoryMode === 'all') {
+          return this.liked.playHistory.allData;
+        }
       }
+
+      // Get recent played DJ programs
+      if (this.show && this.playHistoryMode === 'podcast') {
+        const recentPrograms = [];
+        forEachRight(this.data.recentPlayDjPrograms, ([programId, program]) => {
+          console.debug(
+            `Add DJ program ${programId} (${program.name}, ${program.progress}) to history list`
+          );
+          program.mainSong = {
+            ...program.mainSong,
+            dt: program.duration,
+            playable: true,
+          };
+          recentPrograms.push({
+            ...program,
+
+            // Context menu needed properties
+            al: { picUrl: program.coverUrl },
+            ar: [{ name: program.radio.name }],
+          });
+        });
+        return recentPrograms;
+      }
+
       return [];
     },
   },
@@ -331,6 +391,7 @@ export default {
       this.$store.dispatch('fetchLikedArtists');
       this.$store.dispatch('fetchLikedMVs');
       this.$store.dispatch('fetchCloudDisk');
+      this.$store.dispatch('fetchLikedDJs');
       this.$store.dispatch('fetchPlayHistory');
     },
     playLikedSongs() {

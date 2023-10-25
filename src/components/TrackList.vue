@@ -10,7 +10,7 @@
       </div>
       <hr v-show="type !== 'cloudDisk'" />
       <div class="item" @click="play">{{ $t('contextMenu.play') }}</div>
-      <div class="item" @click="addToQueue">{{
+      <div v-show="type !== 'dj'" class="item" @click="addToQueue">{{
         $t('contextMenu.addToQueue')
       }}</div>
       <div
@@ -19,16 +19,20 @@
         @click="removeTrackFromQueue"
         >从队列删除</div
       >
-      <hr v-show="type !== 'cloudDisk'" />
+      <hr v-show="type !== 'cloudDisk' && type !== 'dj'" />
       <div
-        v-show="!isRightClickedTrackLiked && type !== 'cloudDisk'"
+        v-show="
+          !isRightClickedTrackLiked && type !== 'cloudDisk' && type !== 'dj'
+        "
         class="item"
         @click="like"
       >
         {{ $t('contextMenu.saveToMyLikedSongs') }}
       </div>
       <div
-        v-show="isRightClickedTrackLiked && type !== 'cloudDisk'"
+        v-show="
+          isRightClickedTrackLiked && type !== 'cloudDisk' && type !== 'dj'
+        "
         class="item"
         @click="like"
       >
@@ -38,17 +42,21 @@
         v-if="extraContextMenuItem.includes('removeTrackFromPlaylist')"
         class="item"
         @click="removeTrackFromPlaylist"
-        >从歌单中删除</div
+        >{{ $t('contextMenu.removeFromPlaylist') }}</div
       >
       <div
-        v-show="type !== 'cloudDisk'"
+        v-show="type !== 'cloudDisk' && type !== 'dj'"
         class="item"
         @click="addTrackToPlaylist"
         >{{ $t('contextMenu.addToPlaylist') }}</div
       >
-      <div v-show="type !== 'cloudDisk'" class="item" @click="copyLink">{{
-        $t('contextMenu.copyUrl')
-      }}</div>
+      <div
+        v-show="type !== 'cloudDisk' && type !== 'dj'"
+        class="item"
+        @click="copyLink"
+      >
+        {{ $t('contextMenu.copyUrl') }}
+      </div>
       <div
         v-if="extraContextMenuItem.includes('removeTrackFromCloudDisk')"
         class="item"
@@ -63,7 +71,9 @@
         :key="itemKey === 'id' ? track.id : `${track.id}${index}`"
         :track-prop="track"
         :highlight-playing-track="highlightPlayingTrack"
-        @dblclick.native="playThisList(track.id || track.songId)"
+        @dblclick.native="
+          playThisList(track.mainTrackId || track.id || track.songId)
+        "
         @click.right.native="openMenu($event, track, index)"
       />
     </div>
@@ -96,7 +106,7 @@ export default {
     type: {
       type: String,
       default: 'tracklist',
-    }, // tracklist | album | playlist | cloudDisk
+    }, // tracklist | album | playlist | cloudDisk | dj
     id: {
       type: Number,
       default: 0,
@@ -151,7 +161,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['liked', 'player']),
+    ...mapState(['liked', 'player', 'recentPlayDjProgramsCache']),
     isRightClickedTrackLiked() {
       return this.liked.songs.includes(this.rightClickedTrack?.id);
     },
@@ -210,6 +220,23 @@ export default {
       } else if (this.dbclickTrackFunc === 'playCloudDisk') {
         let trackIDs = this.tracks.map(t => t.id || t.songId);
         this.player.replacePlaylist(trackIDs, this.id, 'cloudDisk', trackID);
+      } else if (
+        this.dbclickTrackFunc === 'playDjPrograms' ||
+        this.dbclickTrackFunc === 'playDjProgramsHistory'
+      ) {
+        let programMap = {};
+        let trackIDs = this.tracks.map(t => {
+          programMap[t.mainTrackId] = t.id;
+          return t.mainTrackId;
+        });
+
+        // Add track ID to the beginning of track list when play DJ programs history
+        if (this.dbclickTrackFunc === 'playDjProgramsHistory') {
+          trackIDs = trackIDs.filter(tid => tid !== trackID);
+          trackIDs.unshift(trackID);
+        }
+
+        this.player.replacePlaylist(trackIDs, programMap, 'dj', trackID);
       }
     },
     playThisListDefault(trackID) {

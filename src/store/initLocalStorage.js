@@ -42,6 +42,7 @@ let localStorage = {
     likedSongPlaylistID: 0,
     lastRefreshCookieDate: 0,
     loginMode: null,
+    recentPlayDjPrograms: [], // The last item is the most recent played program
   },
 };
 

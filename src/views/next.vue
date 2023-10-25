@@ -3,7 +3,7 @@
     <h1>{{ $t('next.nowPlaying') }}</h1>
     <TrackList
       :tracks="[currentTrack]"
-      type="playlist"
+      :type="trackListType"
       dbclick-track-func="none"
     />
     <h1 v-show="playNextList.length > 0"
@@ -13,16 +13,16 @@
     <TrackList
       v-show="playNextList.length > 0"
       :tracks="playNextTracks"
-      type="playlist"
+      :type="trackListType"
       :highlight-playing-track="false"
       dbclick-track-func="playTrackOnListByID"
       item-key="id+index"
       :extra-context-menu-item="['removeTrackFromQueue']"
     />
-    <h1>{{ $t('next.nextUp') }}</h1>
+    <h1>{{ $t('next.nextUp') }} ({{ filteredTracks.length }})</h1>
     <TrackList
       :tracks="filteredTracks"
-      type="playlist"
+      :type="trackListType"
       :highlight-playing-track="false"
       dbclick-track-func="playTrackOnListByID"
     />
@@ -31,6 +31,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
+import { getDjProgramDetail } from '@/api/dj';
 import { getTrackDetail } from '@/api/track';
 import TrackList from '@/components/TrackList.vue';
 
@@ -47,7 +48,25 @@ export default {
   computed: {
     ...mapState(['player']),
     currentTrack() {
-      return this.player.currentTrack;
+      if (this.player.playlistSource.type === 'dj') {
+        const trackId = this.player.currentTrack.id;
+        const programId = this.player.playlistSource.id[trackId] || trackId;
+        return {
+          id: programId,
+          mainSong: {
+            ...this.player.currentTrack,
+            dt: this.player.currentTrack.duration,
+            playable: true,
+          },
+
+          // Context menu needed properties
+          al: { picUrl: this.player.currentTrack.al.picUrl },
+          name: this.player.currentTrack.name,
+          ar: [{ name: this.player.currentTrack.al.name }],
+        };
+      } else {
+        return this.player.currentTrack;
+      }
     },
     playerShuffle() {
       return this.player.shuffle;
@@ -57,7 +76,9 @@ export default {
         this.player.current + 1,
         this.player.current + 100
       );
-      return this.tracks.filter(t => trackIDs.includes(t.id));
+      return this.tracks.filter(
+        t => trackIDs.includes(t.id) || trackIDs.includes(t.mainTrackId)
+      );
     },
     playNextList() {
       return this.player.playNextList;
@@ -66,6 +87,9 @@ export default {
       return this.playNextList.map(tid => {
         return this.tracks.find(t => t.id === tid);
       });
+    },
+    trackListType() {
+      return this.player.playlistSource.type === 'dj' ? 'dj' : 'playlist';
     },
   },
   watch: {
@@ -95,16 +119,36 @@ export default {
       // 将playNextList的歌曲加进trackIDs
       trackIDs.push(...this.playNextList);
 
-      // 获取已经加载了的歌曲
-      let loadedTrackIDs = this.tracks.map(t => t.id);
-
       if (trackIDs.length > 0) {
-        getTrackDetail(trackIDs.join(',')).then(data => {
-          let newTracks = data.songs.filter(
-            t => !loadedTrackIDs.includes(t.id)
-          );
-          this.tracks.push(...newTracks);
-        });
+        if (this.player.playlistSource.type === 'dj') {
+          const requests = trackIDs.map(trackId => {
+            const programId = this.player.playlistSource.id[trackId] || trackId;
+            return getDjProgramDetail(programId);
+          });
+          Promise.all(requests).then(results => {
+            this.tracks = results.map(data => {
+              const program = data.program;
+              program.mainSong = {
+                ...program.mainSong,
+                dt: program.duration,
+                playable: true,
+              };
+              return {
+                ...program,
+                al: { picUrl: program.coverUrl },
+                ar: program.mainSong.artists.map(ar => {
+                  ar.id = program.radio.id;
+                  ar.name = program.radio.name;
+                  return ar;
+                }),
+              };
+            });
+          });
+        } else {
+          getTrackDetail(trackIDs.join(',')).then(data => {
+            this.tracks = data.songs;
+          });
+        }
       }
     },
   },

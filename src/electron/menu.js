@@ -1,5 +1,7 @@
 import defaultShortcuts from '@/utils/shortcuts';
+
 const { app, Menu } = require('electron');
+
 // import { autoUpdater } from "electron-updater"
 // const version = app.getVersion();
 
@@ -92,6 +94,20 @@ export function createMenu(win, store) {
           accelerator: shortcuts.find(s => s.id === 'previous').shortcut,
           click: () => {
             win.webContents.send('previous');
+          },
+        },
+        {
+          label: 'Forward (30 seconds)',
+          accelerator: shortcuts.find(s => s.id === 'forward').shortcut,
+          click: () => {
+            win.webContents.send('forward');
+          },
+        },
+        {
+          label: 'Backward (15 seconds)',
+          accelerator: shortcuts.find(s => s.id === 'backward').shortcut,
+          click: () => {
+            win.webContents.send('backward');
           },
         },
         {

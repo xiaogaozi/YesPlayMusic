@@ -1,16 +1,18 @@
-import { getAlbum } from '@/api/album';
-import { getArtist } from '@/api/artist';
-import { trackScrobble, trackUpdateNowPlaying } from '@/api/lastfm';
-import { fmTrash, personalFM } from '@/api/others';
-import { getPlaylistDetail, intelligencePlaylist } from '@/api/playlist';
-import { getMP3, getTrackDetail, scrobble } from '@/api/track';
-import store from '@/store';
-import { isAccountLoggedIn } from '@/utils/auth';
-import { cacheTrackSource, getTrackSource } from '@/utils/db';
-import { isCreateMpris, isCreateTray } from '@/utils/platform';
 import { Howl, Howler } from 'howler';
 import shuffle from 'lodash/shuffle';
+
 import { decode as base642Buffer } from '@/utils/base64';
+import { cacheTrackSource, getTrackSource } from '@/utils/db';
+import { fmTrash, personalFM } from '@/api/others';
+import { getAlbum } from '@/api/album';
+import { getArtist } from '@/api/artist';
+import { getDjProgramDetail } from '@/api/dj';
+import { getMP3, getTrackDetail, scrobble } from '@/api/track';
+import { getPlaylistDetail, intelligencePlaylist } from '@/api/playlist';
+import { isAccountLoggedIn } from '@/utils/auth';
+import { isCreateMpris, isCreateTray } from '@/utils/platform';
+import { trackScrobble, trackUpdateNowPlaying } from '@/api/lastfm';
+import store from '@/store';
 
 const PLAY_PAUSE_FADE_DURATION = 200;
 
@@ -34,14 +36,14 @@ function setTitle(track) {
   document.title = track
     ? `${track.name} · ${track.ar[0].name} - YesPlayMusic`
     : 'YesPlayMusic';
-  if (isCreateTray) {
+  if (isCreateTray && ipcRenderer) {
     ipcRenderer.send('updateTrayTooltip', document.title);
   }
   store.commit('updateTitle', document.title);
 }
 
 function setTrayLikeState(isLiked) {
-  if (isCreateTray) {
+  if (isCreateTray && ipcRenderer) {
     ipcRenderer.send('updateTrayLikeState', isLiked);
   }
 }
@@ -55,6 +57,7 @@ export default class {
     this._repeatMode = 'off'; // off | on | one
     this._shuffle = false; // true | false
     this._reversed = false;
+    this._rate = 1.0; // 0.5 to 4.0
     this._volume = 1; // 0 to 1
     this._volumeBeforeMuted = 1; // 用于保存静音前的音量
     this._personalFMLoading = false; // 是否正在私人FM中加载新的track
@@ -132,6 +135,15 @@ export default class {
     console.log('changing reversed to:', reversed);
     this._reversed = reversed;
   }
+  get rate() {
+    return this._rate;
+  }
+  set rate(rate) {
+    this._rate = rate;
+    if (this._howler) {
+      this._howler.rate(rate);
+    }
+  }
   get volume() {
     return this._volume;
   }
@@ -200,7 +212,12 @@ export default class {
     if (this._enabled) {
       // 恢复当前播放歌曲
       this._replaceCurrentTrack(this._currentTrack.id, false).then(() => {
-        this._howler?.seek(localStorage.getItem('playerCurrentTrackTime') ?? 0);
+        // The progress of DJ program already saved in state.data.recentPlayDjPrograms
+        if (this._playlistSource.type !== 'dj') {
+          this._howler?.seek(
+            localStorage.getItem('playerCurrentTrackTime') ?? 0
+          );
+        }
       }); // update audio source and init howler
       this._initMediaSession();
     }
@@ -222,7 +239,7 @@ export default class {
   }
   _setPlaying(isPlaying) {
     this._playing = isPlaying;
-    if (isCreateTray) {
+    if (isCreateTray && ipcRenderer) {
       ipcRenderer.send('updateTrayPlayState', this._playing);
     }
   }
@@ -232,10 +249,17 @@ export default class {
     // 这个定时器会覆盖之前改变的值，是bug
     setInterval(() => {
       if (this._howler === null) return;
+      const currentTrackId = this._currentTrack.id;
       this._progress = this._howler.seek();
+
       localStorage.setItem('playerCurrentTrackTime', this._progress);
-      if (isCreateMpris) {
+      if (isCreateMpris && ipcRenderer) {
         ipcRenderer.send('playerCurrentTrackTime', this._progress);
+      }
+
+      // Save progress of current playing DJ program
+      if (this.playing && this._playlistSource.type === 'dj') {
+        this._saveCurrentDjProgramProgress(currentTrackId, this._progress);
       }
     }, 1000);
   }
@@ -316,8 +340,17 @@ export default class {
       src: [source],
       html5: true,
       preload: true,
+      rate: this.rate,
       format: ['mp3', 'flac'],
       onend: () => {
+        // Reset progress to 0 when playing DJ program ends
+        if (this._playlistSource.type === 'dj') {
+          this._saveCurrentDjProgramProgress(
+            this._currentTrack.id,
+            0 /* progress */
+          );
+        }
+
         this._nextTrackCallback();
       },
     });
@@ -406,7 +439,8 @@ export default class {
       'unblock-music',
       store.state.settings.unmSource,
       track,
-      /** @type {import("@unblockneteasemusic/rust-napi").Context} */ ({
+      /** @type {import("@unblockneteasemusic/rust-napi").Context} */
+      ({
         enableFlac: store.state.settings.unmEnableFlac || null,
         proxyUri: store.state.settings.unmProxyUri || null,
         searchMode: determineSearchMode(store.state.settings.unmSearchMode),
@@ -457,40 +491,102 @@ export default class {
     if (autoplay && this._currentTrack.name) {
       this._scrobble(this.currentTrack, this._howler?.seek());
     }
-    return getTrackDetail(id).then(data => {
-      let track = data.songs[0];
-      this._currentTrack = track;
-      this._updateMediaSessionMetaData(track);
-      return this._getAudioSource(track).then(source => {
-        if (source) {
-          this._playAudioSource(source, autoplay);
-          this._cacheNextTrack();
-          return source;
-        } else {
-          store.dispatch('showToast', `无法播放 ${track.name}`);
-          if (ifUnplayableThen === 'playNextTrack') {
-            if (this.isPersonalFM) {
-              this.playNextFMTrack();
+    if (this._playlistSource.type === 'dj') {
+      if (this.playing) {
+        // Set playing to false to prevent this._setIntervals() from saving incorrect progress
+        this._setPlaying(false);
+      }
+
+      let programId = this._playlistSource.id[id] || id;
+      return getDjProgramDetail(programId).then(data => {
+        const program = data.program;
+        let track = {
+          al: { ...program.radio, picUrl: program.coverUrl },
+          ar: program.mainSong.artists.map(ar => {
+            ar.id = program.radio.id;
+            ar.name = program.radio.name;
+            return ar;
+          }),
+          dt: program.mainSong.duration,
+          ...program.mainSong,
+        };
+        return this._getAudioSource(track)
+          .then(source => {
+            if (source) {
+              store.commit('updateRecentPlayDjPrograms', {
+                program,
+              });
+              this._currentTrack = track;
+              this._updateMediaSessionMetaData(track);
+              this._playAudioSource(source, autoplay);
+              this._cacheNextTrack();
+              return source;
             } else {
-              this.playNextTrack();
+              store.dispatch('showToast', `无法播放 ${track.name}`);
+              ifUnplayableThen === 'playNextTrack'
+                ? this.playNextTrack()
+                : this.playPrevTrack();
+              return null;
             }
-          } else {
-            this.playPrevTrack();
-          }
-        }
+          })
+          .then(source => {
+            // Set progress from play history
+            if (source) {
+              const playingProgram =
+                store.state.recentPlayDjProgramsCache.get(programId);
+              if (playingProgram && playingProgram.progress) {
+                console.debug(
+                  `Seek progress of DJ program ${playingProgram.id} (${playingProgram.name}) to: ${playingProgram.progress}`
+                );
+                this.seek(playingProgram.progress);
+              }
+            }
+          });
       });
-    });
+    } else {
+      return getTrackDetail(id).then(data => {
+        let track = data.songs[0];
+        this._currentTrack = track;
+        this._updateMediaSessionMetaData(track);
+        return this._getAudioSource(track).then(source => {
+          if (source) {
+            this._playAudioSource(source, autoplay);
+            this._cacheNextTrack();
+            return source;
+          } else {
+            store.dispatch('showToast', `无法播放 ${track.name}`);
+            if (ifUnplayableThen === 'playNextTrack') {
+              if (this.isPersonalFM) {
+                this.playNextFMTrack();
+              } else {
+                this.playNextTrack();
+              }
+            } else {
+              this.playPrevTrack();
+            }
+          }
+        });
+      });
+    }
   }
   _cacheNextTrack() {
     let nextTrackID = this._isPersonalFM
       ? this._personalFMNextTrack?.id ?? 0
       : this._getNextTrack()[0];
     if (!nextTrackID) return;
-    if (this._personalFMTrack.id == nextTrackID) return;
-    getTrackDetail(nextTrackID).then(data => {
-      let track = data.songs[0];
-      this._getAudioSource(track);
-    });
+    if (this._personalFMTrack?.id == nextTrackID) return;
+    if (this._playlistSource.type === 'dj') {
+      let programId = this._playlistSource.id[nextTrackID] || nextTrackID;
+      getDjProgramDetail(programId).then(data => {
+        let track = data.program.mainSong;
+        this._getAudioSource(track);
+      });
+    } else {
+      getTrackDetail(nextTrackID).then(data => {
+        let track = data.songs[0];
+        this._getAudioSource(track);
+      });
+    }
   }
   _loadSelfFromLocalStorage() {
     const player = JSON.parse(localStorage.getItem('player'));
@@ -508,11 +604,17 @@ export default class {
         this.pause();
       });
       navigator.mediaSession.setActionHandler('previoustrack', () => {
-        this.playPrevTrack();
+        if (this._playlistSource.type === 'dj') {
+          this.backwardTrack();
+        } else {
+          this.playPrevTrack();
+        }
       });
       navigator.mediaSession.setActionHandler('nexttrack', () => {
         if (this.isPersonalFM) {
           this.playNextFMTrack();
+        } else if (this._playlistSource.type === 'dj') {
+          this.forwardTrack();
         } else {
           this.playNextTrack();
         }
@@ -560,7 +662,7 @@ export default class {
     };
 
     navigator.mediaSession.metadata = new window.MediaMetadata(metadata);
-    if (isCreateMpris) {
+    if (isCreateMpris && ipcRenderer) {
       ipcRenderer.send('metadata', metadata);
     }
   }
@@ -627,6 +729,31 @@ export default class {
       return null;
     }
     ipcRenderer.send('pauseDiscordPresence', track);
+  }
+  _saveCurrentDjProgramProgress(currentTrackId, progress) {
+    if (this._playlistSource.type === 'dj') {
+      const currentProgramId = this._playlistSource.id[currentTrackId];
+      if (store.state.recentPlayDjProgramsCache.has(currentProgramId)) {
+        // Update cache
+        const currentProgram =
+          store.state.recentPlayDjProgramsCache.get(currentProgramId);
+        currentProgram.progress = progress;
+
+        // Update state.data.recentPlayDjPrograms
+        store.commit('updateLatestDjProgramProgress', {
+          programId: currentProgramId,
+          progress,
+        });
+      } else {
+        console.warn(
+          `The current playing DJ program ${currentProgramId} not found`
+        );
+      }
+    } else {
+      console.warn(
+        `Current playlist source type isn't DJ: ${this._playlistSource.type}`
+      );
+    }
   }
 
   currentTrackID() {
@@ -771,7 +898,26 @@ export default class {
     if (this._howler?._sounds.length <= 0 || !this._howler?._sounds[0]._node) {
       return;
     }
-    this._howler?._sounds[0]._node.setSinkId(store.state.settings.outputDevice);
+    if (this._howler?._sounds[0]._node.setSinkId) {
+      this._howler?._sounds[0]._node.setSinkId(
+        store.state.settings.outputDevice
+      );
+    }
+  }
+
+  backwardTrack() {
+    if (this._howler) {
+      const backwardTime = this.progress - 15;
+      console.debug(`Backward current track to ${backwardTime} seconds`);
+      this.seek(backwardTime);
+    }
+  }
+  forwardTrack() {
+    if (this._howler) {
+      const forwardTime = this.progress + 30;
+      console.debug(`Forward current track to ${forwardTime} seconds`);
+      this.seek(forwardTime);
+    }
   }
 
   replacePlaylist(

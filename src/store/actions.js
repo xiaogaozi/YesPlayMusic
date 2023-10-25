@@ -1,8 +1,7 @@
 // import store, { state, dispatch, commit } from "@/store";
-import { isAccountLoggedIn, isLooseLoggedIn } from '@/utils/auth';
-import { likeATrack } from '@/api/track';
 import { getPlaylistDetail } from '@/api/playlist';
-import { getTrackDetail } from '@/api/track';
+import { getTrackDetail, likeATrack } from '@/api/track';
+import { isAccountLoggedIn, isLooseLoggedIn } from '@/utils/auth';
 import {
   userPlaylist,
   userPlayHistory,
@@ -10,6 +9,7 @@ import {
   likedAlbums,
   likedArtists,
   likedMVs,
+  likedDJs,
   cloudDisk,
   userAccount,
 } from '@/api/user';
@@ -186,6 +186,17 @@ export default {
         commit('updateLikedXXX', {
           name: 'playHistory',
           data: data,
+        });
+      }
+    });
+  },
+  fetchLikedDJs: ({ commit }) => {
+    if (!isAccountLoggedIn()) return;
+    return likedDJs({ limit: 2000 }).then(result => {
+      if (result.djRadios) {
+        commit('updateLikedXXX', {
+          name: 'djs',
+          data: result.djRadios,
         });
       }
     });

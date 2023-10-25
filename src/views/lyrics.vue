@@ -58,14 +58,18 @@
                 <div class="subtitle">
                   <router-link
                     v-if="artist.id !== 0"
-                    :to="`/artist/${artist.id}`"
+                    :to="`${
+                      player.playlistSource.type !== 'dj' ? '/artist/' : '/dj/'
+                    }${artist.id}`"
                     @click.native="toggleLyrics"
                     >{{ artist.name }}
                   </router-link>
                   <span v-else>
                     {{ artist.name }}
                   </span>
-                  <span v-if="album.id !== 0">
+                  <span
+                    v-if="album.id !== 0 && player.playlistSource.type !== 'dj'"
+                  >
                     -
                     <router-link
                       :to="`/album/${album.id}`"
@@ -76,7 +80,7 @@
                   </span>
                 </div>
               </div>
-              <div class="buttons">
+              <div v-if="player.playlistSource.type !== 'dj'" class="buttons">
                 <button-icon
                   :title="$t('player.like')"
                   @click.native="likeATrack(player.currentTrack.id)"
@@ -93,7 +97,7 @@
               </div>
             </div>
             <div class="progress-bar">
-              <span>{{ formatTrackTime(player.progress) || '0:00' }}</span>
+              <span>{{ formatTrackTime(player.progress) || '00:00' }}</span>
               <div class="slider">
                 <vue-slider
                   v-model="player.progress"
@@ -147,12 +151,22 @@
                   <svg-icon icon-class="thumbs-down" />
                 </button-icon>
                 <button-icon
+                  :title="$t('player.backward')"
+                  @click.native="backwardTrack"
+                  ><svg-icon icon-class="rotate-left-solid"
+                /></button-icon>
+                <button-icon
                   id="play"
                   :title="$t(player.playing ? 'player.pause' : 'player.play')"
                   @click.native="playOrPause"
                 >
                   <svg-icon :icon-class="player.playing ? 'pause' : 'play'" />
                 </button-icon>
+                <button-icon
+                  :title="$t('player.forward')"
+                  @click.native="forwardTrack"
+                  ><svg-icon icon-class="rotate-right-solid"
+                /></button-icon>
                 <button-icon
                   :title="$t('player.next')"
                   @click.native="playNextTrack"
@@ -293,7 +307,7 @@ export default {
       };
     },
     noLyric() {
-      return this.lyric.length == 0;
+      return this.lyric.length == 0 || this.player.playlistSource.type === 'dj';
     },
     artist() {
       return this.currentTrack?.ar
@@ -345,8 +359,15 @@ export default {
         this.player.playNextTrack();
       }
     },
+    backwardTrack() {
+      this.player.backwardTrack();
+    },
+    forwardTrack() {
+      this.player.forwardTrack();
+    },
     getLyric() {
-      if (!this.currentTrack.id) return;
+      if (!this.currentTrack.id || this.player.playlistSource.type === 'dj')
+        return;
       return getLyric(this.currentTrack.id).then(data => {
         if (!data?.lrc?.lyric) {
           this.lyric = [];

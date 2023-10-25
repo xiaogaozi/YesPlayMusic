@@ -31,11 +31,17 @@
     <div class="title-and-artist">
       <div class="container">
         <div class="title">
-          {{ track.name }}
+          <router-link
+            v-if="type === 'dj'"
+            :to="`/dj/program/${trackProp.id}`"
+            >{{ track.name }}</router-link
+          >
+          <span v-else>{{ track.name }}</span>
           <span v-if="isAlbum" class="featured">
             <ArtistsInLine
               :artists="track.ar"
               :exclude="$parent.albumObject.artist.name"
+              :type="type"
               prefix="-"
           /></span>
           <span v-if="isAlbum && track.mark === 1318912" class="explicit-symbol"
@@ -51,7 +57,7 @@
             class="explicit-symbol before-artist"
             ><ExplicitSymbol :size="15"
           /></span>
-          <ArtistsInLine :artists="artists" />
+          <ArtistsInLine :artists="artists" :type="type" />
         </div>
       </div>
       <div></div>
@@ -108,9 +114,13 @@ export default {
   computed: {
     ...mapState(['settings']),
     track() {
-      return this.type === 'cloudDisk'
-        ? this.trackProp.simpleSong
-        : this.trackProp;
+      if (this.type === 'cloudDisk') {
+        return this.trackProp.simpleSong;
+      } else if (this.type === 'dj') {
+        return this.trackProp.mainSong;
+      } else {
+        return this.trackProp;
+      }
     },
     playable() {
       return this.track?.privilege?.pl > 0 || this.track?.playable;
@@ -118,6 +128,7 @@ export default {
     imgUrl() {
       let image =
         this.track?.al?.picUrl ??
+        this.trackProp.coverUrl ??
         this.track?.album?.picUrl ??
         'https://p2.music.126.net/UeTuwE7pvjBpypWLudqukA==/3132508627578625.jpg';
       return image + '?param=224y224';
@@ -193,7 +204,11 @@ export default {
         : true;
     },
     showLikeButton() {
-      return this.type !== 'tracklist' && this.type !== 'cloudDisk';
+      return (
+        this.type !== 'tracklist' &&
+        this.type !== 'cloudDisk' &&
+        this.type !== 'dj'
+      );
     },
     showOrderNumber() {
       return this.type === 'album';

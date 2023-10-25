@@ -1,9 +1,15 @@
-import axios from 'axios';
 import Dexie from 'dexie';
+import axios from 'axios';
+
 import store from '@/store';
+
 // import pkg from "../../package.json";
 
 const db = new Dexie('yesplaymusic');
+
+db.version(5).stores({
+  djProgramDetail: '&id, updateTime',
+});
 
 db.version(4).stores({
   trackDetail: '&id, updateTime',
@@ -151,6 +157,21 @@ export function getAlbumFromCache(id) {
   return db.album.get(Number(id)).then(result => {
     if (!result) return undefined;
     return result.album;
+  });
+}
+
+export function cacheDjProgramDetail(data) {
+  db.djProgramDetail.put({
+    id: Number(data.program.id),
+    data,
+    updateTime: new Date().getTime(),
+  });
+}
+
+export function getDjProgramDetailFromCache(programId) {
+  return db.djProgramDetail.get(Number(programId)).then(result => {
+    if (!result) return undefined;
+    return result.data;
   });
 }
 

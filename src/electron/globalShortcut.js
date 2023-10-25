@@ -1,7 +1,8 @@
 import defaultShortcuts from '@/utils/shortcuts';
-const { globalShortcut } = require('electron');
 
+const { globalShortcut } = require('electron');
 const clc = require('cli-color');
+
 const log = text => {
   console.log(`${clc.blueBright('[globalShortcut.js]')} ${text}`);
 };
@@ -43,16 +44,16 @@ export function registerGlobalShortcut(win, store) {
   //     win.webContents.send('decreaseVolume');
   //   }
   // );
-  globalShortcut.register(
-    shortcuts.find(s => s.id === 'like').globalShortcut,
-    () => {
-      win.webContents.send('like');
-    }
-  );
-  globalShortcut.register(
-    shortcuts.find(s => s.id === 'minimize').globalShortcut,
-    () => {
-      win.isVisible() ? win.hide() : win.show();
-    }
-  );
+  // globalShortcut.register(
+  //   shortcuts.find(s => s.id === 'like').globalShortcut,
+  //   () => {
+  //     win.webContents.send('like');
+  //   }
+  // );
+  // globalShortcut.register(
+  //   shortcuts.find(s => s.id === 'minimize').globalShortcut,
+  //   () => {
+  //     win.isVisible() ? win.hide() : win.show();
+  //   }
+  // );
 }
