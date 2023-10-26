@@ -1,9 +1,11 @@
 <template>
   <div v-show="show" ref="library">
     <h1>
-      <img class="avatar" :src="data.user.avatarUrl | resizeImage" />{{
-        data.user.nickname
-      }}{{ $t('library.sLibrary') }}
+      <img
+        class="avatar"
+        :src="data.user.avatarUrl | resizeImage"
+        loading="lazy"
+      />{{ data.user.nickname }}{{ $t('library.sLibrary') }}
     </h1>
     <div class="section-one">
       <div class="liked-songs" @click="goToLikedSongsList">
@@ -119,7 +121,7 @@
       <div v-show="currentTab === 'playlists'">
         <div v-if="liked.playlists.length > 1">
           <CoverRow
-            :items="filterPlaylists.slice(1)"
+            :items="filterPlaylists"
             type="playlist"
             sub-text="creator"
             :show-play-button="true"
@@ -301,7 +303,7 @@ export default {
       // Pick 3 or fewer lyrics based on the lyric lines.
       const lyricsToPick = Math.min(lyricLine.length, 3);
 
-      // The upperbound of the lyric line to pick
+      // The upperBound of the lyric line to pick
       const randomUpperBound = lyricLine.length - lyricsToPick;
       const startLyricLineIndex = randomNum(0, randomUpperBound - 1);
 
@@ -314,7 +316,7 @@ export default {
       return this.data.libraryPlaylistFilter || 'all';
     },
     filterPlaylists() {
-      const playlists = this.liked.playlists;
+      const playlists = this.liked.playlists.slice(1);
       const userId = this.data.user.userId;
       if (this.playlistFilter === 'mine') {
         return playlists.filter(p => p.creator.userId === userId);
@@ -327,7 +329,8 @@ export default {
       if (this.liked.playHistory) {
         if (this.show && this.playHistoryMode === 'week') {
           return this.liked.playHistory.weekData;
-        } else if (this.show && this.playHistoryMode === 'all') {
+        }
+        if (this.show && this.playHistoryMode === 'all') {
           return this.liked.playHistory.allData;
         }
       }
