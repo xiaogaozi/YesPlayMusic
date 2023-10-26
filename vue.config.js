@@ -1,5 +1,9 @@
-const webpack = require('webpack');
 const path = require('path');
+
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+
+const webpack = require('webpack');
+
 function resolve(dir) {
   return path.join(__dirname, dir);
 }
@@ -43,6 +47,9 @@ module.exports = {
     },
   },
   chainWebpack(config) {
+    // Refer to https://github.com/electron/electron-quick-start-typescript/issues/27%23issuecomment-1553236449
+    config.target('electron-renderer');
+
     config.module.rules.delete('svg');
     config.module.rule('svg').exclude.add(resolve('src/assets/icons')).end();
     config.module
@@ -67,9 +74,19 @@ module.exports = {
     config.plugin('chunkPlugin').use(webpack.optimize.LimitChunkCountPlugin, [
       {
         maxChunks: 3,
+        // minChunkSize: 10_000,
+      },
+    ]);
+
+    // Refer to https://webpack.js.org/plugins/min-chunk-size-plugin
+    config.plugin('minChunkSizePlugin').use(webpack.optimize.MinChunkSizePlugin, [
+      {
         minChunkSize: 10_000,
       },
     ]);
+
+    // Refer to https://stackoverflow.com/a/72186593/2086256
+    config.plugin('nodePolyfillPlugin').use(NodePolyfillPlugin);
   },
   // 添加插件的配置
   pluginOptions: {

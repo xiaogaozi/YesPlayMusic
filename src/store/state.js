@@ -33,6 +33,10 @@ export default {
     mvs: [],
     cloudDisk: [],
     djs: [],
+    playHistory: {
+      weekData: [],
+      allData: [],
+    },
   },
   contextMenu: {
     clickObjectID: 0,

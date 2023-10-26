@@ -28,7 +28,10 @@ export function dailyRecommendPlaylist(params) {
   return request({
     url: '/recommend/resource',
     method: 'get',
-    params,
+    params: {
+      params,
+      timestamp: Date.now(),
+    },
   });
 }
 /**
