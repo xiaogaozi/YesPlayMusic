@@ -212,6 +212,11 @@ export function likedDJs(params) {
       return djRadio;
     });
 
+    // Sort podcasts by latest episode create time in descending order
+    data.djRadios.sort(
+      (a, b) => b.lastProgramCreateTime - a.lastProgramCreateTime
+    );
+
     return data;
   });
 }

@@ -69,6 +69,11 @@
         album.name
       }}</router-link>
       <div></div>
+
+      <div v-if="isPaidPodcast"
+        >{{ $t('podcast.paidPodcast') }}
+        <span v-if="track.buyed">{{ $t('podcast.buyed') }}</span></div
+      >
     </div>
 
     <div v-if="showLikeButton" class="actions">
@@ -82,6 +87,7 @@
         <svg-icon v-show="isLiked" icon-class="heart-solid"></svg-icon>
       </button>
     </div>
+
     <div v-if="showTrackTime" class="time">
       {{ track.dt | formatTime }}
     </div>
@@ -180,6 +186,9 @@ export default {
     },
     isPlaying() {
       return this.$store.state.player.currentTrack.id === this.track?.id;
+    },
+    isPaidPodcast() {
+      return this.type === 'dj' && this.track.programFeeType !== 0;
     },
     trackClass() {
       let trackClass = [this.type];

@@ -190,6 +190,10 @@ export default {
               ...p.mainSong,
               dt: p.duration,
               playable: true,
+
+              // Show paid state
+              programFeeType: p.programFeeType,
+              buyed: p.buyed,
             };
             p = {
               ...p,

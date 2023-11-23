@@ -152,6 +152,10 @@ export default {
               name: this.djProgram.name,
               dt: this.djProgram.duration,
               playable: true,
+
+              // Show paid state
+              programFeeType: this.djProgram.programFeeType,
+              buyed: this.djProgram.buyed,
             },
 
             // Context menu needed properties

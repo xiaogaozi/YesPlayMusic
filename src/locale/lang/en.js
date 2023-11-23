@@ -246,5 +246,7 @@ export default {
     episodeDesc: 'Episode Description',
     subscribe: 'Subscribe',
     unsubscribe: 'Unsubscribe',
+    paidPodcast: 'Paid',
+    buyed: '(Buyed)',
   },
 };
