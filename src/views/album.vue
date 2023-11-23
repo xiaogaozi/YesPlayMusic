@@ -145,6 +145,7 @@
 </template>
 
 <script>
+import { shell } from 'electron';
 import { mapMutations, mapActions, mapState } from 'vuex';
 import { getArtistAlbum } from '@/api/artist';
 import { getTrackDetail } from '@/api/track';
@@ -322,8 +323,7 @@ export default {
         });
     },
     openInBrowser(id) {
-      const url = `https://music.163.com/#/album?id=${id}`;
-      window.open(url);
+      shell.openExternal(`https://music.163.com/#/album?id=${id}`);
     },
   },
 };

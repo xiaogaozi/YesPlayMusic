@@ -43,6 +43,7 @@
 </template>
 
 <script>
+import { shell } from 'electron';
 import { mvDetail, mvUrl, simiMv, likeAMV } from '@/api/mv';
 import { isAccountLoggedIn } from '@/utils/auth';
 import NProgress from 'nprogress';
@@ -154,8 +155,7 @@ export default {
         });
     },
     openInBrowser(id) {
-      const url = `https://music.163.com/#/mv?id=${id}`;
-      window.open(url);
+      shell.openExternal(`https://music.163.com/#/mv?id=${id}`);
     },
   },
 };
