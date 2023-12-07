@@ -188,7 +188,11 @@ export default {
       return this.$store.state.player.currentTrack.id === this.track?.id;
     },
     isPaidPodcast() {
-      return this.type === 'dj' && this.track.programFeeType !== 0;
+      return (
+        this.type === 'dj' &&
+        Number.isInteger(this.track.programFeeType) &&
+        this.track.programFeeType !== 0
+      );
     },
     trackClass() {
       let trackClass = [this.type];
