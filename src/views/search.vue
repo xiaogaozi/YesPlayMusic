@@ -181,7 +181,12 @@ export default {
           return { result: result.result, type };
         })
         .catch(err => {
-          showToast(err.response.data.msg || err.response.data.message);
+          if (err.response && err.response.data) {
+            const errMsg = err.response.data.msg || err.response.data.message;
+            showToast(errMsg);
+          } else {
+            return { result: undefined, type };
+          }
         });
     },
     getData() {

@@ -52,7 +52,7 @@
                     v-if="hasList()"
                     :to="`${getListPath()}`"
                     @click.native="toggleLyrics"
-                    >{{ currentTrack.name }}
+                    ><span>{{ currentTrack.name }}</span>
                   </router-link>
                   <span v-else>
                     {{ currentTrack.name }}
@@ -65,7 +65,7 @@
                       player.playlistSource.type !== 'dj' ? '/artist/' : '/dj/'
                     }${artist.id}`"
                     @click.native="toggleLyrics"
-                    >{{ artist.name }}
+                    ><span>{{ artist.name }}</span>
                   </router-link>
                   <span v-else>
                     {{ artist.name }}
@@ -78,7 +78,7 @@
                       :to="`/album/${album.id}`"
                       :title="album.name"
                       @click.native="toggleLyrics"
-                      >{{ album.name }}
+                      ><span>{{ album.name }}</span>
                     </router-link>
                   </span>
                 </div>

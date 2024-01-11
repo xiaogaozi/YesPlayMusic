@@ -85,6 +85,7 @@
 </template>
 
 <script>
+import { shell } from 'electron';
 import { mapActions, mapState } from 'vuex';
 import NProgress from 'nprogress';
 
@@ -190,6 +191,10 @@ export default {
               ...p.mainSong,
               dt: p.duration,
               playable: true,
+
+              // Show paid state
+              programFeeType: p.programFeeType,
+              buyed: p.buyed,
             };
             p = {
               ...p,
@@ -241,8 +246,7 @@ export default {
         });
     },
     openInBrowser(id) {
-      const url = `https://music.163.com/#/djradio?id=${id}`;
-      window.open(url);
+      shell.openExternal(`https://music.163.com/#/djradio?id=${id}`);
     },
   },
 };

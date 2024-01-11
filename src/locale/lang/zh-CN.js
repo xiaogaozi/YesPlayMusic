@@ -246,5 +246,7 @@ export default {
     episodeDesc: '本期介绍',
     subscribe: '订阅',
     unsubscribe: '取消订阅',
+    paidPodcast: '付费',
+    buyed: '（已购）',
   },
 };
