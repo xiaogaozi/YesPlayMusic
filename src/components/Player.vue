@@ -185,7 +185,7 @@
 
           <button-icon
             class="lyrics-button"
-            title="歌词"
+            :title="$t('player.lyrics')"
             style="margin-left: 12px"
             @click.native="toggleLyrics"
             ><svg-icon icon-class="arrow-up"

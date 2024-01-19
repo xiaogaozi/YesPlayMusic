@@ -33,11 +33,19 @@ const routes = [
     path: '/playlist/:id',
     name: 'playlist',
     component: () => import('@/views/playlist.vue'),
+    meta: {
+      keepAlive: true,
+      savePosition: true,
+    },
   },
   {
     path: '/album/:id',
     name: 'album',
     component: () => import('@/views/album.vue'),
+    meta: {
+      keepAlive: true,
+      savePosition: true,
+    },
   },
   {
     path: '/artist/:id',

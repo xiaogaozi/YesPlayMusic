@@ -188,9 +188,12 @@
       :close="toggleFullDescription"
       :show-footer="false"
       :click-outside-hide="true"
-      title="歌单介绍"
-      >{{ playlist.description }}</Modal
+      :title="$t('playlist.playlistDesc')"
     >
+      <p class="description-fulltext">
+        {{ playlist.description }}
+      </p>
+    </Modal>
 
     <ContextMenu ref="playlistMenu">
       <!-- <div class="item">{{ $t('contextMenu.addToQueue') }}</div> -->
@@ -419,6 +422,17 @@ export default {
     setTimeout(() => {
       if (!this.show) NProgress.start();
     }, 1000);
+  },
+  activated() {
+    if (this.$route.name === 'likedSongs') {
+      this.loadData(this.data.likedSongPlaylistID);
+    } else {
+      if (this.playlist?.id?.toString() !== this.$route.params.id) {
+        this.loadData(this.$route.params.id);
+      } else {
+        this.$parent.$refs.scrollbar.restorePosition();
+      }
+    }
   },
   methods: {
     ...mapMutations(['appendTrackToPlayerList']),
@@ -964,5 +978,14 @@ export default {
   display: flex;
   justify-content: center;
   margin-top: 32px;
+}
+
+.description-fulltext {
+  font-size: 16px;
+  margin-top: 24px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: pre-line;
 }
 </style>

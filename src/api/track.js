@@ -58,6 +58,11 @@ export function getTrackDetail(ids) {
         song.alia = song.alia.map(alia => {
           return pangu.spacing(alia);
         });
+        if (song.tns) {
+          song.tns = song.tns.map(tns => {
+            return pangu.spacing(tns);
+          });
+        }
         return song;
       });
 

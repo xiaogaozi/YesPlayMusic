@@ -234,6 +234,13 @@ export default {
   created() {
     this.loadData(this.$route.params.id);
   },
+  activated() {
+    if (this.album?.id?.toString() !== this.$route.params.id) {
+      this.loadData(this.$route.params.id);
+    } else {
+      this.$parent.$refs.scrollbar.restorePosition();
+    }
+  },
   methods: {
     ...mapMutations(['appendTrackToPlayerList']),
     ...mapActions(['playFirstTrackOnList', 'playTrackOnListByID', 'showToast']),

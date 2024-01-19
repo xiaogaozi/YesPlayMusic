@@ -17,31 +17,31 @@ export function createMenu(win, store) {
   const template = [
     ...(isMac
       ? [
-          {
-            label: app.name,
-            submenu: [
-              { role: 'about' },
-              { type: 'separator' },
-              { role: 'services' },
-              { type: 'separator' },
-              { type: 'separator' },
-              {
-                label: 'Preferences...',
-                accelerator: 'CmdOrCtrl+,',
-                click: () => {
-                  win.webContents.send('changeRouteTo', '/settings');
-                },
-                role: 'preferences',
+        {
+          label: app.name,
+          submenu: [
+            { role: 'about' },
+            { type: 'separator' },
+            { role: 'services' },
+            { type: 'separator' },
+            { type: 'separator' },
+            {
+              label: 'Preferences...',
+              accelerator: 'CmdOrCtrl+,',
+              click: () => {
+                win.webContents.send('changeRouteTo', '/settings');
               },
-              { type: 'separator' },
-              { role: 'hide' },
-              { role: 'hideothers' },
-              { role: 'unhide' },
-              { type: 'separator' },
-              { role: 'quit' },
-            ],
-          },
-        ]
+              role: 'preferences',
+            },
+            { type: 'separator' },
+            { role: 'hide' },
+            { role: 'hideothers' },
+            { role: 'unhide' },
+            { type: 'separator' },
+            { role: 'quit' },
+          ],
+        },
+      ]
       : []),
     {
       label: 'Edit',
@@ -54,14 +54,14 @@ export function createMenu(win, store) {
         { role: 'paste' },
         ...(isMac
           ? [
-              { role: 'delete' },
-              { role: 'selectAll' },
-              { type: 'separator' },
-              {
-                label: 'Speech',
-                submenu: [{ role: 'startspeaking' }, { role: 'stopspeaking' }],
-              },
-            ]
+            { role: 'delete' },
+            { role: 'selectAll' },
+            { type: 'separator' },
+            {
+              label: 'Speech',
+              submenu: [{ role: 'startspeaking' }, { role: 'stopspeaking' }],
+            },
+          ]
           : [{ role: 'delete' }, { type: 'separator' }, { role: 'selectAll' }]),
         {
           label: 'Search',
@@ -145,6 +145,13 @@ export function createMenu(win, store) {
             win.webContents.send('shuffle');
           },
         },
+        {
+          label: 'Lyrics',
+          accelerator: 'Alt+L',
+          click: () => {
+            win.webContents.send('toggleLyrics');
+          },
+        },
       ],
     },
     {
@@ -160,25 +167,25 @@ export function createMenu(win, store) {
         { role: 'togglefullscreen' },
         ...(isMac
           ? [
-              { type: 'separator' },
-              { role: 'front' },
-              { type: 'separator' },
-              {
-                role: 'window',
-                id: 'window',
-                label: 'YesPlayMusic',
-                type: 'checkbox',
-                checked: true,
-                click: () => {
-                  const current = menu.getMenuItemById('window');
-                  if (current.checked === false) {
-                    win.hide();
-                  } else {
-                    win.show();
-                  }
-                },
+            { type: 'separator' },
+            { role: 'front' },
+            { type: 'separator' },
+            {
+              role: 'window',
+              id: 'window',
+              label: 'YesPlayMusic',
+              type: 'checkbox',
+              checked: true,
+              click: () => {
+                const current = menu.getMenuItemById('window');
+                if (current.checked === false) {
+                  win.hide();
+                } else {
+                  win.show();
+                }
               },
-            ]
+            },
+          ]
           : [{ role: 'close' }]),
       ],
     },
