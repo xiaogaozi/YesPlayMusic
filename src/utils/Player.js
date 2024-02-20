@@ -465,20 +465,48 @@ export default class {
       }
     };
 
+    const trackInfo = {
+      id: track.id && track.id.toString(),
+      name: track.name,
+      duration: track.dt,
+      album: track.al && {
+        id: track.al.id && track.al.id.toString(),
+        name: track.al.name,
+      },
+      artists: track.ar
+        ? track.ar.map(({ id, name }) => ({
+            id: id && id.toString(),
+            name,
+          }))
+        : [],
+    };
+    const context = {
+      enableFlac: store.state.settings.unmEnableFlac || null,
+      proxyUri: store.state.settings.unmProxyUri || null,
+      searchMode: determineSearchMode(store.state.settings.unmSearchMode),
+      config: {
+        'joox:cookie': store.state.settings.unmJooxCookie || null,
+        'qq:cookie': store.state.settings.unmQQCookie || null,
+        'ytdl:exe': store.state.settings.unmYtDlExe || null,
+      },
+    };
+    console.debug(
+      `[debug][Player.js] Start invoke unblock-music: trackInfo=${JSON.stringify(
+        trackInfo
+      )}, source=[${store.state.settings.unmSource}], context=${JSON.stringify(
+        context
+      )}`
+    );
     const retrieveSongInfo = await ipcRenderer.invoke(
       'unblock-music',
       store.state.settings.unmSource,
       track,
-      {
-        enableFlac: store.state.settings.unmEnableFlac || null,
-        proxyUri: store.state.settings.unmProxyUri || null,
-        searchMode: determineSearchMode(store.state.settings.unmSearchMode),
-        config: {
-          'joox:cookie': store.state.settings.unmJooxCookie || null,
-          'qq:cookie': store.state.settings.unmQQCookie || null,
-          'ytdl:exe': store.state.settings.unmYtDlExe || null,
-        },
-      }
+      context
+    );
+    console.debug(
+      `[debug][Player.js] End invoke unblock-music: ${JSON.stringify(
+        retrieveSongInfo
+      )}`
     );
 
     if (store.state.settings.automaticallyCacheSongs && retrieveSongInfo?.url) {
