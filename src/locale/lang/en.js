@@ -219,6 +219,8 @@ export default {
       enable: 'Enable Maloja',
       serverUrl: 'Maloja Server URL',
       apiKey: 'Maloja API Key',
+      authUsername: 'Maloja HTTP Auth Username',
+      authPassword: 'Maloja HTTP Auth Password',
     },
   },
   contextMenu: {

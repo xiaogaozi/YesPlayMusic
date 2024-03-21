@@ -348,22 +348,36 @@ export default class {
     }
 
     // Scrobble track to Maloja
-    if (store.state.settings.enableMaloja) {
+    if (
+      store.state.settings.enableMaloja &&
+      (time >= trackDuration / 2 || time >= 240)
+    ) {
       const malojaServerUrl =
         store.state.settings.malojaConfig?.serverUrl || '';
       const malojaApiKey = store.state.settings.malojaConfig?.apiKey || '';
+      const malojaAuthUsername =
+        store.state.settings.malojaConfig?.authUsername || '';
+      const malojaAuthPassword =
+        store.state.settings.malojaConfig?.authPassword || '';
       if (malojaServerUrl && malojaApiKey) {
         console.debug(
           `[debug][Player.js] scrobble track ${track.name} by ${track.ar[0].name} to Maloja ${malojaServerUrl}`
         );
         const timestamp = ~~(new Date().getTime() / 1000) - time;
-        malojaTrackScrobble(malojaServerUrl, malojaApiKey, {
-          artist: track.ar[0].name,
-          track: track.name,
-          timestamp,
-          album: track.al.name,
-          duration: trackDuration,
-        });
+        malojaTrackScrobble(
+          malojaServerUrl,
+          malojaApiKey,
+          malojaAuthUsername,
+          malojaAuthPassword,
+          {
+            timestamp,
+            artist: track.ar[0].name,
+            track: track.name,
+            album: track.al.name,
+            length: trackDuration,
+            duration: time,
+          }
+        );
       }
     }
   }

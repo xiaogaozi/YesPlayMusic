@@ -219,6 +219,8 @@ export default {
       enable: '开启 Maloja',
       serverUrl: 'Maloja 服务地址',
       apiKey: 'Maloja API Key',
+      authUsername: 'Maloja HTTP 验证用户名',
+      authPassword: 'Maloja HTTP 验证密码',
     },
   },
   contextMenu: {

@@ -42,6 +42,8 @@ let localStorage = {
     malojaConfig: {
       serverUrl: null,
       apiKey: null,
+      authUsername: null,
+      authPassword: null,
     },
   },
   data: {

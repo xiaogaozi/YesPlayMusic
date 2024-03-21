@@ -485,6 +485,30 @@
           />
         </div>
       </div>
+      <div class="item">
+        <div class="left">
+          <div class="title">{{ $t('settings.maloja.authUsername') }}</div>
+        </div>
+        <div class="right">
+          <input
+            v-model="malojaAuthUsername"
+            class="text-input margin-right-0"
+            placeholder="..."
+          />
+        </div>
+      </div>
+      <div class="item">
+        <div class="left">
+          <div class="title">{{ $t('settings.maloja.authPassword') }}</div>
+        </div>
+        <div class="right">
+          <input
+            v-model="malojaAuthPassword"
+            class="text-input margin-right-0"
+            placeholder="..."
+          />
+        </div>
+      </div>
 
       <h3>其他</h3>
       <div v-if="isElectron && !isMac" class="item">
@@ -1252,6 +1276,32 @@ export default {
       set(value) {
         let config = this.settings.malojaConfig || {};
         config.apiKey = value;
+        this.$store.commit('updateSettings', {
+          key: 'malojaConfig',
+          value: config,
+        });
+      },
+    },
+    malojaAuthUsername: {
+      get() {
+        return this.settings.malojaConfig?.authUsername || '';
+      },
+      set(value) {
+        let config = this.settings.malojaConfig || {};
+        config.authUsername = value;
+        this.$store.commit('updateSettings', {
+          key: 'malojaConfig',
+          value: config,
+        });
+      },
+    },
+    malojaAuthPassword: {
+      get() {
+        return this.settings.malojaConfig?.authPassword || '';
+      },
+      set(value) {
+        let config = this.settings.malojaConfig || {};
+        config.authPassword = value;
         this.$store.commit('updateSettings', {
           key: 'malojaConfig',
           value: config,
