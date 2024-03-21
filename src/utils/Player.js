@@ -11,6 +11,7 @@ import { getMP3, getTrackDetail, scrobble } from '@/api/track';
 import { getPlaylistDetail, intelligencePlaylist } from '@/api/playlist';
 import { isAccountLoggedIn } from '@/utils/auth';
 import { isCreateMpris, isCreateTray } from '@/utils/platform';
+import { malojaTrackScrobble } from '@/api/maloja';
 import { trackScrobble, trackUpdateNowPlaying } from '@/api/lastfm';
 import store from '@/store';
 
@@ -344,6 +345,26 @@ export default class {
         trackNumber: track.no,
         duration: trackDuration,
       });
+    }
+
+    // Scrobble track to Maloja
+    if (store.state.settings.enableMaloja) {
+      const malojaServerUrl =
+        store.state.settings.malojaConfig?.serverUrl || '';
+      const malojaApiKey = store.state.settings.malojaConfig?.apiKey || '';
+      if (malojaServerUrl && malojaApiKey) {
+        console.debug(
+          `[debug][Player.js] scrobble track ${track.name} by ${track.ar[0].name} to Maloja ${malojaServerUrl}`
+        );
+        const timestamp = ~~(new Date().getTime() / 1000) - time;
+        malojaTrackScrobble(malojaServerUrl, malojaApiKey, {
+          artist: track.ar[0].name,
+          track: track.name,
+          timestamp,
+          album: track.al.name,
+          duration: trackDuration,
+        });
+      }
     }
   }
   _playAudioSource(source, autoplay = true) {

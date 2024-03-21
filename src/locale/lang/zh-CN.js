@@ -215,6 +215,11 @@ export default {
         desc2: '留空则不进行相关设置',
       },
     },
+    maloja: {
+      enable: '开启 Maloja',
+      serverUrl: 'Maloja 服务地址',
+      apiKey: 'Maloja API Key',
+    },
   },
   contextMenu: {
     play: '播放',
