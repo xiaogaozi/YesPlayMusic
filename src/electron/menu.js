@@ -145,6 +145,13 @@ export function createMenu(win, store) {
             win.webContents.send('shuffle');
           },
         },
+        {
+          label: 'Lyrics',
+          accelerator: 'Alt+L',
+          click: () => {
+            win.webContents.send('toggleLyrics');
+          },
+        },
       ],
     },
     {

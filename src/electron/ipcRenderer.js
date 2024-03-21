@@ -81,6 +81,10 @@ export function ipcRenderer(vueInstance) {
     player.switchShuffle();
   });
 
+  ipcRenderer.on('toggleLyrics', () => {
+    store.commit('toggleLyrics');
+  });
+
   ipcRenderer.on('routerGo', (event, where) => {
     self.$refs.navbar.go(where);
   });

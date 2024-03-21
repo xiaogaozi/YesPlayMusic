@@ -67,6 +67,7 @@ export default {
     playlist: '歌单',
     updatedAt: '最后更新于',
     search: '搜索歌单音乐',
+    playlistDesc: '歌单介绍',
   },
   login: {
     accessToAll: '可访问全部数据',
@@ -118,6 +119,7 @@ export default {
     rate: '播放速率',
     backward: '后退（15 秒）',
     forward: '快进（30 秒）',
+    lyrics: '歌词',
   },
   modal: {
     close: '关闭',

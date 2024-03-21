@@ -282,7 +282,7 @@ export default {
         NProgress.done();
         this.show = true;
       });
-      getArtistAlbum({ id: id, limit: 500 }).then(data => {
+      getArtistAlbum({ id: id, limit: 200 }).then(data => {
         this.albumsData = data.hotAlbums;
         this.latestRelease = data.hotAlbums[0];
       });

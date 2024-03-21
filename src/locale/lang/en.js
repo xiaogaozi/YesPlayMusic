@@ -70,6 +70,7 @@ export default {
     playlist: 'Playlists',
     updatedAt: 'Updated at',
     search: 'Search in playlist',
+    playlistDesc: 'Playlist Description',
   },
   login: {
     accessToAll: 'Access to all data',
@@ -117,6 +118,7 @@ export default {
     rate: 'Rate',
     backward: 'Backward (15 seconds)',
     forward: 'Forward (30 seconds)',
+    lyrics: 'Lyrics',
   },
   modal: {
     close: 'Close',
