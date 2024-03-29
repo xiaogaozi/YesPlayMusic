@@ -213,6 +213,7 @@ import ContextMenu from '@/components/ContextMenu.vue';
 import VueSlider from 'vue-slider-component';
 import { formatTrackTime } from '@/utils/common';
 import { goToListSource, hasListSource } from '@/utils/playList';
+import { formatTrackTime } from '@/utils/common';
 
 export default {
   name: 'Player',
