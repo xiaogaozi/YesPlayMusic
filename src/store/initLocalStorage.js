@@ -36,6 +36,15 @@ let localStorage = {
       port: null,
     },
     shortcuts: shortcuts,
+
+    // Maloja settings
+    enableMaloja: false,
+    malojaConfig: {
+      serverUrl: null,
+      apiKey: null,
+      authUsername: null,
+      authPassword: null,
+    },
   },
   data: {
     user: {},

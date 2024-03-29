@@ -444,6 +444,71 @@
           </div>
         </div>
       </div>
+      <!-- Maloja settings -->
+      <div class="item">
+        <div class="left">
+          <div class="title">{{ $t('settings.maloja.enable') }}</div>
+        </div>
+        <div class="right">
+          <div class="toggle">
+            <input
+              id="enable-maloja"
+              v-model="enableMaloja"
+              type="checkbox"
+              name="enable-maloja"
+            />
+            <label for="enable-maloja"></label>
+          </div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="left">
+          <div class="title">{{ $t('settings.maloja.serverUrl') }}</div>
+        </div>
+        <div class="right">
+          <input
+            v-model="malojaServerUrl"
+            class="text-input margin-right-0"
+            placeholder="http://localhost:42010"
+          />
+        </div>
+      </div>
+      <div class="item">
+        <div class="left">
+          <div class="title">{{ $t('settings.maloja.apiKey') }}</div>
+        </div>
+        <div class="right">
+          <input
+            v-model="malojaApiKey"
+            class="text-input margin-right-0"
+            placeholder="..."
+          />
+        </div>
+      </div>
+      <div class="item">
+        <div class="left">
+          <div class="title">{{ $t('settings.maloja.authUsername') }}</div>
+        </div>
+        <div class="right">
+          <input
+            v-model="malojaAuthUsername"
+            class="text-input margin-right-0"
+            placeholder="..."
+          />
+        </div>
+      </div>
+      <div class="item">
+        <div class="left">
+          <div class="title">{{ $t('settings.maloja.authPassword') }}</div>
+        </div>
+        <div class="right">
+          <input
+            v-model="malojaAuthPassword"
+            class="text-input margin-right-0"
+            placeholder="..."
+          />
+        </div>
+      </div>
 
       <h3>其他</h3>
       <div v-if="isElectron && !isMac" class="item">
@@ -1176,6 +1241,70 @@ export default {
         this.$store.commit('updateSettings', {
           key: 'linuxEnableCustomTitlebar',
           value,
+        });
+      },
+    },
+    enableMaloja: {
+      get() {
+        const value = this.settings.enableMaloja;
+        return value !== undefined ? value : true;
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'enableMaloja',
+          value,
+        });
+      },
+    },
+    malojaServerUrl: {
+      get() {
+        return this.settings.malojaConfig?.serverUrl || '';
+      },
+      set(value) {
+        let config = this.settings.malojaConfig || {};
+        config.serverUrl = value;
+        this.$store.commit('updateSettings', {
+          key: 'malojaConfig',
+          value: config,
+        });
+      },
+    },
+    malojaApiKey: {
+      get() {
+        return this.settings.malojaConfig?.apiKey || '';
+      },
+      set(value) {
+        let config = this.settings.malojaConfig || {};
+        config.apiKey = value;
+        this.$store.commit('updateSettings', {
+          key: 'malojaConfig',
+          value: config,
+        });
+      },
+    },
+    malojaAuthUsername: {
+      get() {
+        return this.settings.malojaConfig?.authUsername || '';
+      },
+      set(value) {
+        let config = this.settings.malojaConfig || {};
+        config.authUsername = value;
+        this.$store.commit('updateSettings', {
+          key: 'malojaConfig',
+          value: config,
+        });
+      },
+    },
+    malojaAuthPassword: {
+      get() {
+        return this.settings.malojaConfig?.authPassword || '';
+      },
+      set(value) {
+        let config = this.settings.malojaConfig || {};
+        config.authPassword = value;
+        this.$store.commit('updateSettings', {
+          key: 'malojaConfig',
+          value: config,
         });
       },
     },

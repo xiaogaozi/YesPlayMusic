@@ -215,6 +215,13 @@ export default {
         desc2: 'Leave empty to pick up the default value',
       },
     },
+    maloja: {
+      enable: 'Enable Maloja',
+      serverUrl: 'Maloja Server URL',
+      apiKey: 'Maloja API Key',
+      authUsername: 'Maloja HTTP Auth Username',
+      authPassword: 'Maloja HTTP Auth Password',
+    },
   },
   contextMenu: {
     play: 'Play',
